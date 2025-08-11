@@ -12,25 +12,37 @@ struct AboutView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Header
-                    VStack(spacing: 16) {
-                        Image(systemName: "person.3.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.chieacSecondary)
-                        
-                        Text("About Us")
-                            .font(.chieacSectionHeader)
-                            .foregroundColor(.chieacPrimary)
-                        
-                        Text("Meet the passionate team behind ChiEAC's mission")
-                            .font(.chieacBody)
-                            .foregroundColor(.chieacTextSecondary)
-                            .multilineTextAlignment(.center)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    // Hero Header
+                    ZStack {
+                        LinearGradient(
+                            gradient: Gradient(colors: [.chieacMintGreen, .white]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        VStack(spacing: 14) {
+                            Image(systemName: "person.3.fill")
+                                .font(.system(size: 56))
+                                .foregroundColor(.chieacSecondary)
+                                .padding(18)
+                                .background(Circle().fill(Color.white))
+                                .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+                            
+                            Text("About Us")
+                                .font(.chieacAppTitle)
+                                .foregroundColor(.chieacPrimary)
+                            
+                            Text("Meet the passionate team behind ChiEAC's mission")
+                                .font(.chieacBody)
+                                .foregroundColor(.chieacTextSecondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 24)
+                        }
+                        .padding(.top, 60)
+                        .padding(.bottom, 24)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 60)
+                    .frame(maxWidth: .infinity)
                     
                     // Team Type Selector
                     VStack(spacing: 20) {
@@ -66,8 +78,9 @@ struct AboutView: View {
                             .padding(.horizontal, 20)
                         }
                     }
+                    .padding(.top, 24)
                     
-                    Spacer(minLength: 20)
+                    Spacer(minLength: 24)
                 }
             }
             .background(Color.chieacLightBackground)

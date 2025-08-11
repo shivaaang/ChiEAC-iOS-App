@@ -16,6 +16,7 @@ class HomeViewModel: ObservableObject {
     @Published var coreWork: [CoreWork] = []
     @Published var impactStats: [ImpactStat] = []
     @Published var organizationData: OrganizationInfo? // Can be nil before loading
+    @Published var articles: [Article] = Article.seedData
     
     @Published var error: Error?
     
@@ -57,6 +58,8 @@ class HomeViewModel: ObservableObject {
         listenForCoreWork()
         listenForImpactStats()
         listenForOrganizationInfo()
+    // Stories: currently seeded locally; when Firestore is ready,
+    // add a listener similar to others and remove the line above.
     }
     
     func retry() {
