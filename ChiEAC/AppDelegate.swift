@@ -15,6 +15,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
     FirebaseApp.configure()
     print("Firebase configured successfully!")
+    // Ensure UIKit surfaces use light mode without deprecated APIs
+    if #available(iOS 13.0, *) {
+      UIApplication.shared.connectedScenes
+        .compactMap { $0 as? UIWindowScene }
+        .flatMap { $0.windows }
+        .forEach { $0.overrideUserInterfaceStyle = .light }
+    }
     return true
   }
 }

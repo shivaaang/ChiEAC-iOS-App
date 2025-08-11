@@ -20,7 +20,7 @@ struct HomeView: View {
                         HeaderSection(organization: orgData)
                         
                         // Main Content
-                        VStack(spacing: 28) {
+                        VStack(spacing: 40) {
                             // Mission Statement
                             MissionSection(
                                 organizationData: orgData,
@@ -149,9 +149,9 @@ struct HeaderSection: View {
                 
                 // CTA buttons
                 HStack(spacing: 14) {
-                    NavigationLink(destination: DonationWebView()) {
+                    NavigationLink(destination: SupportMissionView()) {
                         HStack(spacing: 8) {
-                            Text("Get Involved")
+                            Text("Support Us")
                             Image(systemName: "arrow.right")
                         }
                         .frame(maxWidth: .infinity)
@@ -390,12 +390,8 @@ struct ArticlesSection: View {
                 HStack(spacing: 14) {
                     // Show only top 5 articles
                     ForEach(Array(articles.prefix(5)), id: \.mediumLink) { article in
-                        Button {
-                selectedArticle = article
-                        } label: {
-                ArticleHomeCard(article: article)
-                        }
-                        .buttonStyle(PlainButtonStyle())
+                        ArticleHomeCard(article: article)
+                            .onTapGesture { selectedArticle = article }
                     }
 
                     // Sixth card: Explore More Articles

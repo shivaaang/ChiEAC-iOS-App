@@ -35,6 +35,7 @@ struct ArticleHomeCard: View {
             )
             .cornerRadius(16)
             .frame(width: 260, height: 150)
+            .allowsHitTesting(false)
             
             Text(article.title)
                 .font(.headline.weight(.semibold))
@@ -43,8 +44,8 @@ struct ArticleHomeCard: View {
                 .padding(12)
         }
         .frame(width: 260, height: 150)
-        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color(UIColor.systemGray5), lineWidth: 1))
+    .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color(UIColor.systemGray5), lineWidth: 1))
     }
 }
 

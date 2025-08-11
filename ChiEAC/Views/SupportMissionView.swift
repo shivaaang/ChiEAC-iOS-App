@@ -12,7 +12,7 @@ struct SupportMissionView: View {
     
     var body: some View {
         ScrollView {
-                VStack(spacing: 30) {
+                VStack(spacing: 15) {
                     // Header Section
                     SupportMissionHeaderSection()
                     
@@ -50,7 +50,7 @@ struct SupportMissionView: View {
 // MARK: - Header Section
 struct SupportMissionHeaderSection: View {
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 10) {
             // Logo
             Image("chieac-logo-icon")
                 .resizable()
@@ -62,7 +62,7 @@ struct SupportMissionHeaderSection: View {
             
             VStack(spacing: 12) {
                 Text("Make a Real Difference in Chicago Communities")
-                    .font(.largeTitle)
+                    .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.chieacPrimary)
                     .multilineTextAlignment(.center)
@@ -75,9 +75,9 @@ struct SupportMissionHeaderSection: View {
 // MARK: - Mission Statement Section
 struct MissionStatementSection: View {
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 15) {
             Text("When you give to the ChiEAC Community Impact Fund, you are changing lives.")
-                .font(.title2)
+                .font(.title3)
                 .fontWeight(.bold)
                 .foregroundColor(.chieacTextPrimary)
                 .multilineTextAlignment(.center)
@@ -90,7 +90,7 @@ struct MissionStatementSection: View {
                 .lineSpacing(4)
             
             Text("This is not just charity. This is how change begins...person to person, family to family.")
-                .font(.headline)
+                .font(.body)
                 .fontWeight(.medium)
                 .foregroundColor(.chieacSecondary)
                 .multilineTextAlignment(.center)
@@ -114,7 +114,7 @@ struct ImpactNumbersSection: View {
     ]
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 15) {
             HStack {
                 Image(systemName: "chart.bar.fill")
                     .foregroundColor(.chieacSecondary)
