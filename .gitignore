@@ -1,0 +1,15 @@
+# Sensitive iOS config
+ChiEAC/GoogleService-Info.plist
+ChiEAC/ChiEAC/GoogleService-Info.plist
+
+# Local trash or tooling artifacts
+articles.json
+CLAUDE.md
+
+# Xcode noise
+**/xcuserdata/
+**/.DS_Store
+*.xcuserstate
+
+# SwiftPM build artifacts
+.build/
