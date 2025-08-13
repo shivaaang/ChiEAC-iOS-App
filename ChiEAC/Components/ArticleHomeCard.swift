@@ -51,7 +51,8 @@ struct ArticleHomeCard: View {
 
 struct ArticleHomeCard_Previews: PreviewProvider {
     static var previews: some View {
-        ArticleHomeCard(article: Article.seedData.first!)
+    let mock = Article(id: nil, title: "Sample", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Mock"]) 
+    ArticleHomeCard(article: mock)
             .padding()
             .previewLayout(.sizeThatFits)
     }

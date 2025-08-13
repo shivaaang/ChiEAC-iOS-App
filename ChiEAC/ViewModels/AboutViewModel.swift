@@ -13,13 +13,12 @@ import Combine
 @MainActor
 class AboutViewModel: ObservableObject {
     // MARK: - Published Properties
-    @Published var coreTeam: [TeamMember] = []
-    @Published var advisoryBoard: [TeamMember] = []
-    @Published var selectedTeamType: TeamType = .core
+    @Published var teams: [Team] = []
+    @Published var members: [TeamMember] = []
     @Published var isLoading = false
     @Published var error: Error?
     
-    private var listenerTask: Task<Void, Error>?
+    private let repository: DataRepository
 
     // MARK: - Computed Properties
     var hasError: Bool {
@@ -30,97 +29,63 @@ class AboutViewModel: ObservableObject {
         error?.localizedDescription ?? "An unknown error occurred"
     }
     
-    var isAnyContentLoading: Bool {
-        isLoading
+    var isAnyContentLoading: Bool { isLoading }
+    
+    var coreTeamMembers: [TeamMember] {
+        members.filter { $0.team == .coreTeam && !$0.name.isEmpty }
     }
     
-    var currentTeamMembers: [TeamMember] {
-        switch selectedTeamType {
-        case .core:
-            return coreTeam
-        case .advisory:
-            return advisoryBoard
-        }
+    var advisoryBoardMembers: [TeamMember] {
+        members.filter { $0.team == .advisoryBoard && !$0.name.isEmpty }
     }
     
     // MARK: - Initialization
-    init() {
-        listenForTeamMembers()
+    init(repository: DataRepository = LocalRepository.shared) {
+        self.repository = repository
+    load()
     }
     
-    deinit {
-        listenerTask?.cancel()
-    }
+    deinit {}
     
     // MARK: - Public Methods
-    func listenForTeamMembers() {
+    func load() {
         isLoading = true
         error = nil
         
-        listenerTask?.cancel()
-        
-        listenerTask = Task {
-            do {
-                for try await updatedMembers in FirebaseService.shared.teamMembersListener() {
-                    self.coreTeam = updatedMembers.filter { $0.type == .core }
-                    self.advisoryBoard = updatedMembers.filter { $0.type == .advisory }
-                    if self.isLoading {
-                        self.isLoading = false
-                    }
-                    // Clear any previous errors on successful data fetch
-                    self.error = nil
-                }
-            } catch {
-                self.isLoading = false
-                self.error = error
-                print("Error listening for team members: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    func selectTeamType(_ teamType: TeamType) {
-        selectedTeamType = teamType
+        self.teams = repository.loadTeams()
+        self.members = repository.loadTeamMembers()
+        self.isLoading = false
     }
     
     func retry() {
-        listenForTeamMembers()
+        load()
     }
     
     // MARK: - Helper Methods
     func getTeamMember(byId id: String) -> TeamMember? {
-        let allMembers = coreTeam + advisoryBoard
-        return allMembers.first { $0.id == id }
+        members.first { $0.id == id }
     }
     
     func getTeamMember(byName name: String) -> TeamMember? {
-        let allMembers = coreTeam + advisoryBoard
-        return allMembers.first { $0.name == name }
+        members.first { $0.name == name }
     }
     
     func getCoreTeamCount() -> Int {
-        coreTeam.count
+        coreTeamMembers.count
     }
     
     func getAdvisoryBoardCount() -> Int {
-        advisoryBoard.count
+        advisoryBoardMembers.count
     }
     
     func getTotalTeamCount() -> Int {
-        coreTeam.count + advisoryBoard.count
+        members.count
     }
     
-    // MARK: - Contact Actions
-    func openEmail(for member: TeamMember) {
-        guard !member.email.isEmpty,
-              let url = URL(string: "mailto:\(member.email)") else { return }
-        UIApplication.shared.open(url)
-    }
-    
-    func openPhone(for member: TeamMember) {
-        guard let phone = member.phone,
-              !phone.isEmpty,
-              let url = URL(string: "tel://\(phone)") else { return }
-        UIApplication.shared.open(url)
+    // MARK: - Contact Actions removed (no email/phone in new team member schema)
+
+    func members(for team: Team) -> [TeamMember] {
+        members.filter { $0.team == team.code && !$0.name.isEmpty }
     }
 }
 

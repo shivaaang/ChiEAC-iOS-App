@@ -16,7 +16,7 @@ class HomeViewModel: ObservableObject {
     @Published var coreWork: [CoreWork] = []
     @Published var impactStats: [ImpactStat] = []
     @Published var organizationData: OrganizationInfo? // Can be nil before loading
-    @Published var articles: [Article] = Article.seedData
+    @Published var articles: [Article] = []
     
     @Published var error: Error?
     
@@ -25,9 +25,7 @@ class HomeViewModel: ObservableObject {
     @Published var isLoadingImpactStats = false
     @Published var isLoadingOrganizationData = false
     
-    private var coreWorkTask: Task<Void, Error>?
-    private var impactStatsTask: Task<Void, Error>?
-    private var orgInfoTask: Task<Void, Error>?
+    private let repository: DataRepository
 
     // MARK: - Computed Properties
     var hasError: Bool {
@@ -43,23 +41,20 @@ class HomeViewModel: ObservableObject {
     }
     
     // MARK: - Initialization
-    init() {
+    init(repository: DataRepository = LocalRepository.shared) {
+        self.repository = repository
         listenForAllData()
     }
     
     deinit {
-        coreWorkTask?.cancel()
-        impactStatsTask?.cancel()
-        orgInfoTask?.cancel()
+    // no async tasks to cancel in local mode
     }
     
     // MARK: - Public Methods
     func listenForAllData() {
-        listenForCoreWork()
-        listenForImpactStats()
-        listenForOrganizationInfo()
-    // Stories: currently seeded locally; when Firestore is ready,
-    // add a listener similar to others and remove the line above.
+    listenForCoreWork()
+    listenForImpactStats()
+    listenForOrganizationInfo()
     }
     
     func retry() {
@@ -70,63 +65,24 @@ class HomeViewModel: ObservableObject {
     // MARK: - Private Listener Methods
     private func listenForCoreWork() {
         isLoadingCoreWork = true
-        coreWorkTask?.cancel()
-        coreWorkTask = Task {
-            do {
-                for try await updatedItems in FirebaseService.shared.coreWorkListener() {
-                    self.coreWork = updatedItems
-                    if self.isLoadingCoreWork {
-                        self.isLoadingCoreWork = false
-                    }
-                    // Clear any previous errors on successful data fetch
-                    self.error = nil
-                }
-            } catch {
-                self.isLoadingCoreWork = false
-                self.error = error
-                print("Error listening for core work: \(error.localizedDescription)")
-            }
-        }
+        let items = repository.loadCoreWork()
+        self.coreWork = items
+        self.isLoadingCoreWork = false
     }
     
     private func listenForImpactStats() {
         isLoadingImpactStats = true
-        impactStatsTask?.cancel()
-        impactStatsTask = Task {
-            do {
-                for try await updatedItems in FirebaseService.shared.impactStatsListener() {
-                    self.impactStats = updatedItems
-                    if self.isLoadingImpactStats {
-                        self.isLoadingImpactStats = false
-                    }
-                    self.error = nil
-                }
-            } catch {
-                self.isLoadingImpactStats = false
-                self.error = error
-                print("Error listening for impact stats: \(error.localizedDescription)")
-            }
-        }
+        let items = repository.loadImpactStats()
+        self.impactStats = items
+        self.isLoadingImpactStats = false
     }
     
     private func listenForOrganizationInfo() {
         isLoadingOrganizationData = true
-        orgInfoTask?.cancel()
-        orgInfoTask = Task {
-            do {
-                for try await updatedInfo in FirebaseService.shared.organizationInfoListener() {
-                    self.organizationData = updatedInfo
-                    if self.isLoadingOrganizationData {
-                        self.isLoadingOrganizationData = false
-                    }
-                    self.error = nil
-                }
-            } catch {
-                self.isLoadingOrganizationData = false
-                self.error = error
-                print("Error listening for organization info: \(error.localizedDescription)")
-            }
-        }
+        let info = repository.loadOrganizationInfo()
+        self.organizationData = info
+        self.isLoadingOrganizationData = false
+        self.articles = repository.loadArticles()
     }
     
     // MARK: - Helper Methods

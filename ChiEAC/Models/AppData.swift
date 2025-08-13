@@ -8,19 +8,13 @@
 
 import Foundation
 import SwiftUI
-import FirebaseFirestore
 
 // MARK: - Core Work Data
 struct CoreWork: Identifiable, Codable {
-    @DocumentID var id: String?
+    let id: String
     let title: String
     let description: String
     let icon: String
-    let colorHex: String
-    
-    var color: Color {
-        Color(hex: colorHex)
-    }
 }
 
 // CoreWorkData - No longer needed as data comes from Firebase
@@ -28,7 +22,7 @@ struct CoreWork: Identifiable, Codable {
 
 // MARK: - Program Data (Updated Structure)
 struct ProgramInfo: Identifiable, Codable {
-    @DocumentID var id: String?
+    var id: String?
     let title: String
     let subtitle: String
     let description: String
@@ -46,21 +40,104 @@ struct ProgramInfo: Identifiable, Codable {
 // ProgramData - No longer needed as data comes from Firebase
 // All program data is now managed in Firebase Firestore
 
-// MARK: - Team Data
+// MARK: - Team Data (revamped)
+enum TeamCode: String, Codable, CaseIterable {
+    case coreTeam = "core_team"
+    case advisoryBoard = "advisory_board"
+
+    // Be lenient with alternative spellings that may appear in content
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let raw = (try? container.decode(String.self)) ?? "core_team"
+        switch raw {
+        case "core_team": self = .coreTeam
+        case "advisory_board", "advisory_team": self = .advisoryBoard
+        default: self = .coreTeam
+        }
+    }
+
+    func displayName() -> String {
+        switch self {
+        case .coreTeam: return "Core Team"
+        case .advisoryBoard: return "Advisory Board"
+        }
+    }
+}
+
+struct Team: Identifiable, Codable {
+    let id: String
+    let name: String
+    let code: TeamCode
+    let description: String
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name = "team_name"
+        case code = "team_code"
+        case description = "team_description"
+    }
+}
+
 struct TeamMember: Identifiable, Codable {
-    @DocumentID var id: String?
+    let id: String
     let name: String
     let title: String
     let bio: String
-    let email: String
-    let phone: String?
-    let type: TeamType
-    let imageURL: String? // New: URL for team member photo
-}
+    let bioShort: String?
+    let team: TeamCode
+    let imageURL: String?
 
-enum TeamType: String, Codable, CaseIterable {
-    case core = "Core Team"
-    case advisory = "Advisory Board"
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name = "member_name"
+        case title = "member_title"
+        case bio = "member_summary"
+        case bioShort = "member_summary_short"
+        case team = "member_team"
+        case imageURL = "member_image_link"
+    }
+
+    // Custom decoding to support deterministic ids and legacy payloads
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let name = (try? c.decode(String.self, forKey: .name)) ?? ""
+        let title = (try? c.decode(String.self, forKey: .title)) ?? ""
+        let bio = (try? c.decode(String.self, forKey: .bio)) ?? ""
+        let bioShort = try? c.decode(String.self, forKey: .bioShort)
+        let team = (try? c.decode(TeamCode.self, forKey: .team)) ?? .coreTeam
+        let imageURL = try? c.decode(String.self, forKey: .imageURL)
+
+        // Deterministic id: use provided id or generate from team+name slug
+        if let provided = try? c.decode(String.self, forKey: .id), !provided.isEmpty {
+            self.id = provided
+        } else {
+            self.id = TeamMember.makeSlugId(team: team, name: name)
+        }
+        self.name = name
+        self.title = title
+        self.bio = bio
+        self.bioShort = bioShort
+        self.team = team
+        self.imageURL = imageURL
+    }
+
+    static func makeSlugId(team: TeamCode, name: String) -> String {
+        let ns = name.lowercased()
+            .replacingOccurrences(of: "[^a-z0-9]+", with: "_", options: .regularExpression)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "_"))
+        return "member.\(team.rawValue).\(ns)"
+    }
+
+    // Memberwise initializer for convenience (e.g., fallbacks, previews)
+    init(id: String, name: String, title: String, bio: String, bioShort: String? = nil, team: TeamCode, imageURL: String? = nil) {
+        self.id = id
+        self.name = name
+        self.title = title
+        self.bio = bio
+        self.bioShort = bioShort
+        self.team = team
+        self.imageURL = imageURL
+    }
 }
 
 // TeamData - No longer needed as data comes from Firebase
@@ -70,24 +147,25 @@ enum TeamType: String, Codable, CaseIterable {
 // All organization data including impact stats is now managed in Firebase Firestore
 
 struct ImpactStat: Identifiable, Codable {
-    @DocumentID var id: String?
+    let id: String
     let number: String
     let label: String
+    let subtitle: String
+    let icon: String
 }
 
 // MARK: - Organization Info Model
 struct OrganizationInfo: Codable, Identifiable {
-    @DocumentID var id: String?
+    var id: String?
     let mission: String
     let description: String
     let tagline: String
     let contactEmail: String
-    let contactPhone: String
 }
 
 // MARK: - Articles
 struct Article: Identifiable, Codable {
-    @DocumentID var id: String?
+    var id: String?
     let title: String
     let mediumLink: String
     let imageLink: String
@@ -101,78 +179,17 @@ struct Article: Identifiable, Codable {
     }
 }
 
-extension Article {
-    static let seedData: [Article] = [
-        Article(
-            id: nil,
-            title: "Who Gets to Use? What High School Taught Me About Privilege and Drugs",
-            mediumLink: "https://medium.com/age-of-awareness/who-gets-to-use-what-high-school-taught-me-about-privilege-and-drugs-be5d26d5beeb",
-            imageLink: "https://miro.medium.com/v2/resize:fit:640/format:webp/1*GXmiU7Al2j2lSfCYAUJoeg.jpeg",
-            articleTags: ["Social Justice", "Education Equity", "Identity & Culture"]
-        ),
-        Article(
-            id: nil,
-            title: "My Mental Health Isn't Invisible to Me. So Why Do Others Look Right Through It?",
-            mediumLink: "https://chieac.medium.com/my-mental-health-isnt-invisible-to-me-so-why-do-others-look-right-through-it-225180fbc714",
-            imageLink: "https://miro.medium.com/v2/resize:fill:640:427/1*HvFgtA_QwCep68Cj8DrJuw.jpeg",
-            articleTags: ["Mental Health", "Social Justice", "Identity & Culture"]
-        ),
-        Article(
-            id: nil,
-            title: "What Community Organizations Teach Us About Real Power and Real Limits",
-            mediumLink: "https://chieac.medium.com/what-community-organizations-teach-us-about-real-power-and-real-limits-05870525d93b",
-            imageLink: "https://miro.medium.com/v2/resize:fill:640:427/1*l07UMr8pvxPErYXjSlCuLQ.jpeg",
-            articleTags: ["Social Justice", "Education Equity", "Immigration & Community"]
-        ),
-        Article(
-            id: nil,
-            title: "What Students Learned About Trust and Advocacy as Relational Processes by Showing Up and Staying…",
-            mediumLink: "https://chieac.medium.com/what-students-learned-about-trust-and-advocacy-as-relational-processes-by-showing-up-and-staying-e37541a8d56d",
-            imageLink: "https://miro.medium.com/v2/resize:fill:640:427/1*2Zwvf1csQvo_fXVpoXCeDQ.jpeg",
-            articleTags: ["Education Equity", "Social Justice", "Higher Ed Life"]
-        ),
-        Article(
-            id: nil,
-            title: "Structural Barriers for Migrant Families, Public Schools, and their Fight for Opportunity",
-            mediumLink: "https://chieac.medium.com/structural-barriers-for-migrant-families-public-schools-and-their-fight-for-opportunity-932c21aa0af4",
-            imageLink: "https://miro.medium.com/v2/resize:fill:640:427/1*hNCm2o_SAOSlrKOnjYt_uw.jpeg",
-            articleTags: ["Education Equity", "Immigration & Community", "Social Justice"]
-        ),
-        Article(
-            id: nil,
-            title: "Immigrant Kids in Chicago Carry More Than Books…They Carry Their Families",
-            mediumLink: "https://chieac.medium.com/immigrant-kids-in-chicago-carry-more-than-books-they-carry-their-families-3605741a86f8",
-            imageLink: "https://miro.medium.com/v2/resize:fill:640:427/1*e1GP7v2x-yt21b0p7byvvQ.jpeg",
-            articleTags: ["Immigration & Community", "Education Equity", "Identity & Culture"]
-        ),
-        Article(
-            id: nil,
-            title: "What the Media Taught Me About Who Uses Drugs, Who Commits Crime, and Who Stays Poor",
-            mediumLink: "https://chieac.medium.com/what-the-media-taught-me-about-who-uses-drugs-who-commits-crime-and-who-stays-poor-f00ea1148c59",
-            imageLink: "https://miro.medium.com/v2/resize:fill:640:427/1*P7PoL7znBF_iRZWmQgeYSA.jpeg",
-            articleTags: ["Social Justice", "Identity & Culture", "Economic Justice"]
-        ),
-        Article(
-            id: nil,
-            title: "My Mom Was Doing Two Jobs…I Only Noticed One",
-            mediumLink: "https://chieac.medium.com/my-mom-was-doing-two-jobs-i-only-noticed-one-73f10a91c52b",
-            imageLink: "https://miro.medium.com/v2/resize:fill:640:427/1*ekHkUHDEdPsQxRYw5aPW5w.jpeg",
-            articleTags: ["Economic Justice", "Identity & Culture", "Social Justice"]
-        ),
-        Article(
-            id: nil,
-            title: "I Argued with My Grandfather About Politics Before I Even Knew What Politics Meant",
-            mediumLink: "https://chieac.medium.com/i-argued-with-my-grandfather-about-politics-before-i-even-knew-what-politics-meant-531af26f9f80",
-            imageLink: "https://miro.medium.com/v2/resize:fill:640:427/1*9lmHUaU2v09jjXTHESjI5A.jpeg",
-            articleTags: ["Identity & Culture", "Social Justice"]
-        ),
-        Article(
-            id: nil,
-            title: "Coming Back to What I Once Ignored",
-            mediumLink: "https://chieac.medium.com/coming-back-to-what-i-once-ignored-94bf1028065f",
-            imageLink: "https://miro.medium.com/v2/resize:fill:640:427/1*0YhtRLjfOWm5YlSCqnJbDg.jpeg",
-            articleTags: ["Identity & Culture", "Higher Ed Life"]
-        )
-    ]
+
+// MARK: - External Links
+struct ExternalLink: Identifiable, Codable {
+    let id: String
+    let name: String
+    let address: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name = "link_name"
+        case address = "link_address"
+    }
 }
 

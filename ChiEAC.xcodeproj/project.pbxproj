@@ -6,10 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		2BBE7F802E47F0DF000E69E9 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 2BBE7F7F2E47F0DF000E69E9 /* FirebaseFirestore */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		2BBE7EFE2E478E7B000E69E9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -39,16 +35,6 @@
 			path = ChiEAC;
 			sourceTree = "<group>";
 		};
-		2BBE7F002E478E7B000E69E9 /* ChiEACTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ChiEACTests;
-			sourceTree = "<group>";
-		};
-		2BBE7F0A2E478E7B000E69E9 /* ChiEACUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ChiEACUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,7 +42,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2BBE7F802E47F0DF000E69E9 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,8 +66,6 @@
 			isa = PBXGroup;
 			children = (
 				2BBE7EF22E478E7A000E69E9 /* ChiEAC */,
-				2BBE7F002E478E7B000E69E9 /* ChiEACTests */,
-				2BBE7F0A2E478E7B000E69E9 /* ChiEACUITests */,
 				2BBE7EF12E478E7A000E69E9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -117,7 +100,6 @@
 			);
 			name = ChiEAC;
 			packageProductDependencies = (
-				2BBE7F7F2E47F0DF000E69E9 /* FirebaseFirestore */,
 			);
 			productName = ChiEAC;
 			productReference = 2BBE7EF02E478E7A000E69E9 /* ChiEAC.app */;
@@ -135,9 +117,6 @@
 			);
 			dependencies = (
 				2BBE7EFF2E478E7B000E69E9 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				2BBE7F002E478E7B000E69E9 /* ChiEACTests */,
 			);
 			name = ChiEACTests;
 			packageProductDependencies = (
@@ -158,9 +137,6 @@
 			);
 			dependencies = (
 				2BBE7F092E478E7B000E69E9 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				2BBE7F0A2E478E7B000E69E9 /* ChiEACUITests */,
 			);
 			name = ChiEACUITests;
 			packageProductDependencies = (
@@ -202,7 +178,6 @@
 			mainGroup = 2BBE7EE72E478E7A000E69E9;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				2BBE7F7E2E47F0DF000E69E9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2BBE7EF12E478E7A000E69E9 /* Products */;
@@ -411,6 +386,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -443,6 +419,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -569,25 +546,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		2BBE7F7E2E47F0DF000E69E9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.1.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		2BBE7F7F2E47F0DF000E69E9 /* FirebaseFirestore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2BBE7F7E2E47F0DF000E69E9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseFirestore;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2BBE7EE82E478E7A000E69E9 /* Project object */;
 }

@@ -17,7 +17,7 @@ class ProgramsViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
     
-    private var listenerTask: Task<Void, Error>?
+    private let repository: DataRepository
 
     // MARK: - Computed Properties
     var hasError: Bool {
@@ -29,37 +29,20 @@ class ProgramsViewModel: ObservableObject {
     }
     
     // MARK: - Initialization
-    init() {
+    init(repository: DataRepository = LocalRepository.shared) {
+        self.repository = repository
         listenForPrograms()
     }
     
-    deinit {
-        listenerTask?.cancel()
-    }
     
     // MARK: - Public Methods
     func listenForPrograms() {
         isLoading = true
         error = nil
         
-        listenerTask?.cancel() // Cancel any existing listener
-        
-        listenerTask = Task {
-            do {
-                for try await updatedPrograms in FirebaseService.shared.programsListener() {
-                    self.programs = updatedPrograms
-                    if self.isLoading {
-                        self.isLoading = false
-                    }
-                    // Clear any previous errors on successful data fetch
-                    self.error = nil
-                }
-            } catch {
-                self.isLoading = false
-                self.error = error
-                print("Error listening for programs: \(error.localizedDescription)")
-            }
-        }
+    let data = repository.loadPrograms()
+    self.programs = data
+    self.isLoading = false
     }
     
     func retry() {

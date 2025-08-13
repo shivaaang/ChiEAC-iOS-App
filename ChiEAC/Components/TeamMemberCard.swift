@@ -9,11 +9,11 @@ import SwiftUI
 
 struct TeamMemberCard: View {
     let member: TeamMember
-    let onEmailTap: () -> Void
-    let onPhoneTap: () -> Void
+    let onMoreTap: (() -> Void)?
+    let onCardTap: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: 16) {
             // Header with avatar and basic info
             HStack(alignment: .top, spacing: 16) {
                 // Avatar (with image support)
@@ -62,57 +62,46 @@ struct TeamMemberCard: View {
                 Spacer()
             }
             
-            // Bio
-            Text(member.bio)
+            // Summary (prefer short summary if available)
+            Text(member.bioShort ?? member.bio)
                 .font(.chieacBody)
                 .foregroundColor(.chieacTextSecondary)
                 .lineSpacing(2)
             
-            // Contact buttons
+            // Footer: More… link when there is a shorter summary
             HStack(spacing: 12) {
-                if !member.email.isEmpty {
-                    ContactButton(
-                        icon: "envelope.fill",
-                        action: onEmailTap
-                    )
-                }
-                
-                if let phone = member.phone, !phone.isEmpty {
-                    ContactButton(
-                        icon: "phone.fill",
-                        action: onPhoneTap
-                    )
-                }
-                
                 Spacer()
+
+                // Show More… only if there is a longer bio available
+                if let short = member.bioShort, !short.isEmpty, short != member.bio, let onMoreTap {
+                    Button(action: onMoreTap) {
+                        HStack(spacing: 4) {
+                            Text("More…")
+                            Image(systemName: "chevron.right")
+                                .font(.caption2)
+                        }
+                        .font(.chieacCaption)
+                        .foregroundColor(.chieacSecondary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("More details about \(member.name)")
+                }
             }
         }
         .padding(20)
-        .background(Color.chieacCardGreen)
+        .background(Color.white)
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
+    .contentShape(Rectangle())
+    .onTapGesture { onCardTap() }
+    .accessibilityAddTraits(.isButton)
+    .accessibilityLabel("Open details for \(member.name)")
     }
     
     private func getInitials(from name: String) -> String {
         let components = name.components(separatedBy: " ")
         let initials = components.compactMap { $0.first }.map(String.init)
-        return initials.prefix(2).joined()
-    }
-}
-
-struct ContactButton: View {
-    let icon: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: icon)
-                .font(.chieacCaption)
-                .foregroundColor(.white)
-                .frame(width: 36, height: 36)
-                .background(Color.chieacSecondary)
-                .clipShape(Circle())
-        }
+    return initials.prefix(2).joined().uppercased()
     }
 }
 
@@ -120,16 +109,16 @@ struct TeamMemberCard_Previews: PreviewProvider {
     static var previews: some View {
         TeamMemberCard(
             member: TeamMember(
+                id: "member.core_team.benjamin_drury",
                 name: "Benjamin (Dr. D) Drury",
                 title: "Founder & Executive Director",
                 bio: "Founded ChiEAC in 2020 with passion for addressing systemic educational inequities.",
-                email: "benjamin@chieac.org",
-                phone: "312-555-0123",
-                type: .core,
+                bioShort: "Founded ChiEAC in 2020…",
+                team: .coreTeam,
                 imageURL: nil
             ),
-            onEmailTap: { print("Email tapped") },
-            onPhoneTap: { print("Phone tapped") }
+            onMoreTap: { print("More tapped") },
+            onCardTap: { print("Card tapped") }
         )
         .padding()
         .previewLayout(.sizeThatFits)

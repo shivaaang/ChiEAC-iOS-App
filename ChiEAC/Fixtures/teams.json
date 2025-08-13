@@ -1,0 +1,14 @@
+[
+  {
+    "id": "team.core_team",
+    "team_name": "Core Team",
+    "team_code": "core_team",
+    "team_description": "Meet the exceptionally dedicated team of educators, advocates, and community leaders who, with unique skills, a shared drive for equity, and deep cariño, empower Chicago’s underrepresented students and families"
+  },
+  {
+    "id": "team.advisory_board",
+    "team_name": "Advisory Board",
+    "team_code": "advisory_board",
+    "team_description": "The ChiEAC Advisory Board reflects our communities. Advisors guide donation allocation, programming, needs assessments, and events. We meet three times a year—over a meal—to improve education outcomes for Chicago students."
+  }
+]

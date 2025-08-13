@@ -1,0 +1,30 @@
+[
+  {
+    "id": "impact.students_supported",
+    "number": "1,600+",
+    "label": "Students Supported",
+    "subtitle": "across Chicago",
+    "icon": "graduationcap.fill"
+  },
+  {
+    "id": "impact.families_served",
+    "number": "500+",
+    "label": "Families Served",
+    "subtitle": "since 2020",
+    "icon": "house.fill"
+  },
+  {
+    "id": "impact.resources",
+    "number": "$20K+",
+    "label": "Essential Resources",
+    "subtitle": "distributed",
+    "icon": "dollarsign.circle.fill"
+  },
+  {
+    "id": "impact.internships",
+    "number": "85+",
+    "label": "Custom Internships",
+    "subtitle": "created for students",
+    "icon": "briefcase.fill"
+  }
+]

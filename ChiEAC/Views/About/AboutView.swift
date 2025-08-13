@@ -44,41 +44,33 @@ struct AboutView: View {
                     }
                     .frame(maxWidth: .infinity)
                     
-                    // Team Type Selector
-                    VStack(spacing: 20) {
-                        // Segmented Control
-                        Picker("Team Type", selection: Binding(
-                            get: { viewModel.selectedTeamType },
-                            set: { viewModel.selectTeamType($0) }
-                        )) {
-                            Text("Core Team").tag(TeamType.core)
-                            Text("Advisory Board").tag(TeamType.advisory)
-                        }
-                        .pickerStyle(SegmentedPickerStyle())
-                        .padding(.horizontal, 20)
-                        
-                        // Team Members with Loading States
+                    // Team summary cards
+                    VStack(spacing: 16) {
                         if viewModel.isAnyContentLoading {
-                            LazyVStack(spacing: 16) {
-                                ForEach(0..<3, id: \.self) { _ in
-                                    TeamMemberLoadingSkeleton()
-                                }
+                            // Simple placeholders
+                            ForEach(0..<2, id: \.self) { _ in
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.chieacCardGreen.opacity(0.5))
+                                    .frame(height: 180)
+                                    .padding(.horizontal, 20)
+                                    .redacted(reason: .placeholder)
                             }
-                            .padding(.horizontal, 20)
                         } else {
                             LazyVStack(spacing: 16) {
-                                ForEach(viewModel.currentTeamMembers, id: \.id) { member in
-                                    TeamMemberCard(
-                                        member: member,
-                                        onEmailTap: { viewModel.openEmail(for: member) },
-                                        onPhoneTap: { viewModel.openPhone(for: member) }
-                                    )
+                                ForEach(viewModel.teams, id: \.id) { team in
+                                    NavigationLink(destination: TeamView(team: team, members: viewModel.members(for: team))) {
+                                        TeamCard(
+                                            team: team,
+                                            members: viewModel.members(for: team)
+                                        )
+                                        .padding(.horizontal, 20)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
                             }
-                            .padding(.horizontal, 20)
                         }
                     }
-                    .padding(.top, 24)
+                    .padding(.top, 16)
                     
                     Spacer(minLength: 24)
                 }

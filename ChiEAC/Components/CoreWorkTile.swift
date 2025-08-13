@@ -9,18 +9,19 @@ import SwiftUI
 
 struct CoreWorkTile: View {
     let work: CoreWork
+    private let accentColor: Color = .chieacSecondary
     
     var body: some View {
         HStack(alignment: .top, spacing: 20) {
             // Icon (professional system icon)
             ZStack {
                 Circle()
-                    .fill(work.color.opacity(0.15))
+                    .fill(accentColor.opacity(0.15))
                     .frame(width: 60, height: 60)
                 
                 Image(systemName: work.icon)
                     .font(.title2)
-                    .foregroundColor(work.color)
+                    .foregroundColor(accentColor)
             }
             
             // Content
@@ -48,10 +49,10 @@ struct CoreWorkTile: View {
 struct CoreWorkTile_Previews: PreviewProvider {
     static var previews: some View {
         CoreWorkTile(work: CoreWork(
+            id: "core_work.preview.advocacy",
             title: "Advocacy",
             description: "We advocate for policies that address root causes of educational inequity and create a more just and equitable school system.",
-            icon: "scale.3d",
-            colorHex: "#12614d"
+            icon: "scale.3d"
         ))
         .padding()
         .previewLayout(.sizeThatFits)

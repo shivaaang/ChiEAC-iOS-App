@@ -37,11 +37,12 @@ extension Font {
     
     // MARK: - Body Text
     static var chieacBody: Font {
-        return .body
+    // Smaller than default Body (~17pt); Subheadline maps to ~15pt and scales with Dynamic Type
+    return .subheadline
     }
     
     static var chieacBodySecondary: Font {
-        return .body.weight(.medium)
+    return .subheadline.weight(.medium)
     }
     
     static var chieacCaption: Font {

@@ -1,0 +1,67 @@
+[
+  {
+    "id": "2WYBIqcVp9l47wdM2kZf",
+    "benefits": [
+      "85 custom internships created since 2020",
+      "90%+ participants gain career-relevant skills",
+      "70% secure employment within 6 months",
+      "300+ hours of mentorship provided",
+      "25 professional development workshops hosted"
+    ],
+    "colorHex": "#12614d",
+    "contactEmail": "elevate@chieac.org",
+    "description": "Custom professional development opportunities tailored to the unique needs and aspirations of rising scholars. Built on principles of empowerment, mentorship, and growth.",
+    "icon": "star.fill",
+    "impact": [
+      "Rising scholars connected with opportunities in education, social work, STEM, and nonprofit management",
+      "Participants prepared to become leaders and innovators in their chosen fields",
+      "Strong professional networks built through mentorship relationships"
+    ],
+    "subtitle": "Professional Development",
+    "title": "ELEVATE"
+  },
+  {
+    "id": "IMKzN3ImmDmqHxeJqKRI",
+    "benefits": [
+      "40+ data scientists and analysts in network",
+      "Hands-on projects with real organizational data",
+      "Professional development in American work culture",
+      "Networking opportunities with industry professionals",
+      "Portfolio development through practical projects"
+    ],
+    "colorHex": "#007bff",
+    "contactEmail": "datascience@chieac.org",
+    "description": "Platform for international students with degrees in business analytics, machine learning, and artificial intelligence to develop skills and gain real-world experience in American work culture.",
+    "icon": "chart.bar.fill",
+    "impact": [
+      "Breaking barriers to employment for international students",
+      "Contributing valuable insights through data analysis projects",
+      "Building strong professional foundations for career growth",
+      "Creating pathways to permanent employment opportunities"
+    ],
+    "subtitle": "Analytics Platform",
+    "title": "DATA SCIENCE ALLIANCE"
+  },
+  {
+    "id": "xrrZ9zQFXLRrq97BsdmM",
+    "benefits": [
+      "150+ families supported since inception",
+      "250+ emergency interventions managed",
+      "$20,000+ in essential resources distributed",
+      "50+ IEPs successfully advocated",
+      "95% of families connected to long-term services"
+    ],
+    "colorHex": "#dc3545",
+    "contactEmail": "impact@chieac.org",
+    "description": "First-responder advocates addressing immediate and ongoing needs of students and families in challenging situations. Providing personalized support and guidance during critical moments.",
+    "icon": "heart.fill",
+    "impact": [
+      "Housing assistance and school enrollment support provided",
+      "Mental health support and advocacy services delivered",
+      "Technology and transportation assistance distributed",
+      "Critical educational advocacy ensuring equitable opportunities"
+    ],
+    "subtitle": "Family Advocacy",
+    "title": "IMPACT"
+  }
+]

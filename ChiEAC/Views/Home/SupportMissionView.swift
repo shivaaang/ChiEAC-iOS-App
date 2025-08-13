@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SupportMissionView: View {
     @State private var showDonationView = false
+    @State private var donationURL: String? = nil
     
     var body: some View {
         ScrollView {
@@ -32,7 +33,7 @@ struct SupportMissionView: View {
                     WhyChiEACSection()
                     
                     // Call to Action
-                    CallToActionSection(showDonationView: $showDonationView)
+                    CallToActionSection(showDonationView: $showDonationView, isEnabled: donationURL != nil)
                     
                     Spacer(minLength: 20)
                 }
@@ -42,7 +43,19 @@ struct SupportMissionView: View {
         .navigationTitle("Support Our Mission")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showDonationView) {
-            DonationWebView()
+            if let url = donationURL {
+                ExternalLinkWebView(urlString: url, title: "Donate to ChiEAC")
+            } else {
+                Text("Missing donation link.")
+                    .padding()
+            }
+        }
+        .onAppear {
+            // Load donation URL from fixtures via repository ASAP on appear
+            if donationURL == nil {
+                let links = LocalRepository.shared.loadExternalLinks()
+                donationURL = links.first(where: { $0.name.lowercased() == "donation" })?.address
+            }
         }
     }
 }
@@ -375,6 +388,7 @@ struct WhyChiEACSection: View {
 // MARK: - Call to Action Section
 struct CallToActionSection: View {
     @Binding var showDonationView: Bool
+    let isEnabled: Bool
     
     var body: some View {
         VStack(spacing: 20) {
@@ -394,9 +408,7 @@ struct CallToActionSection: View {
                     .lineSpacing(3)
             }
             
-            Button(action: {
-                showDonationView = true
-            }) {
+            Button(action: { if isEnabled { showDonationView = true } }) {
                 HStack(spacing: 12) {
                     Text("❤️")
                         .font(.headline)
@@ -412,8 +424,10 @@ struct CallToActionSection: View {
                 .cornerRadius(12)
                 .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 3)
             }
+            .disabled(!isEnabled)
+            .opacity(isEnabled ? 1.0 : 0.7)
             
-            Text("You'll receive a tax receipt for making a donation")
+            Text(isEnabled ? "You'll receive a tax receipt for making a donation" : "Loading donation link…")
                 .font(.body)
                 .foregroundColor(.white)
                 .opacity(0.95)

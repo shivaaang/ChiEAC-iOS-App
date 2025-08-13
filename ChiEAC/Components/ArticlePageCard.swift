@@ -44,14 +44,18 @@ struct ArticlePageCard: View {
             .clipped()
             .cornerRadius(10)
         }
-        .padding(14)
+        .padding(20)
         .background(Color.white)
-        .cornerRadius(15)
-        .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
         .overlay(
-            RoundedRectangle(cornerRadius: 15)
-                .stroke(Color(UIColor.systemGray5), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.chieacMintGreen.opacity(0.6), lineWidth: 1)
         )
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.chieacCardGreen)
+        )
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
     }
 }
 
@@ -145,7 +149,8 @@ private struct TagWrap: View {
 struct ArticlePageCard_Previews: PreviewProvider {
     static var previews: some View {
         List {
-            ArticlePageCard(article: Article.seedData.first!)
+            let mock = Article(id: nil, title: "Sample", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Mock"]) 
+            ArticlePageCard(article: mock)
         }
     }
 }

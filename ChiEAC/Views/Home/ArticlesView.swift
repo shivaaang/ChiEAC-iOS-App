@@ -13,11 +13,11 @@ struct ArticlesView: View {
     @State private var presentingArticle: Article?
     
     private let allTags: [String] = [
+        "Mental Health",
         "Social Justice",
         "Education Equity",
         "Immigration & Community",
         "Identity & Culture",
-        "Mental Health",
         "Higher Ed Life",
         "Economic Justice"
     ]
@@ -41,28 +41,33 @@ struct ArticlesView: View {
                             .foregroundColor(.chieacTextPrimary)
                             .padding(.top, 2)
 
-                        // Chip tray card
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.white)
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color(UIColor.systemGray5), lineWidth: 1)
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 8) {
-                                    ForEach(allTags, id: \.self) { tag in
-                                        TagChip(tag: tag, isSelected: selectedTags.contains(tag)) {
-                                            if selectedTags.contains(tag) { selectedTags.remove(tag) } else { selectedTags.insert(tag) }
-                                        }
+                        // Chip tray card (styled like TeamCard edges)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(allTags, id: \.self) { tag in
+                                    TagChip(tag: tag, isSelected: selectedTags.contains(tag)) {
+                                        if selectedTags.contains(tag) { selectedTags.remove(tag) } else { selectedTags.insert(tag) }
                                     }
                                 }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .padding(.trailing, 16) // keep last chip from touching rounded border
                             }
-                            // Clip content to rounded container to prevent overflow
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .padding(.trailing, 16) // keep last chip from touching rounded border
                         }
+                        // Clip only the scrollable content to avoid chips overflowing
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        // TeamCard edge styling
+                        .background(Color.white)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.chieacMintGreen.opacity(0.6), lineWidth: 1)
+                        )
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.chieacCardGreen)
+                        )
+                        .cornerRadius(16)
+                        .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
 
                         // No divider to keep sections visually connected
                     }
@@ -92,7 +97,7 @@ struct ArticlesView: View {
             .listRowBackground(Color.clear)
         }
         .sheet(item: $presentingArticle) { article in
-            ArticleWebView(urlString: article.mediumLink, title: "Article")
+            ExternalLinkWebView(urlString: article.mediumLink, title: "Article")
         }
     }
 }
@@ -129,7 +134,8 @@ private struct TagChip: View {
 struct ArticlesView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            ArticlesView(articles: Article.seedData)
+            let mock = [Article(id: nil, title: "Sample", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Mock"]) ]
+            ArticlesView(articles: mock)
         }
     }
 }

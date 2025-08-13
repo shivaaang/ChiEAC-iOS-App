@@ -11,21 +11,30 @@ struct ImpactStatCard: View {
     let stat: ImpactStat
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 5) {
+            if !stat.icon.isEmpty {
+                Image(systemName: stat.icon)
+                    .font(.title2)
+                    .foregroundColor(.chieacSecondary)
+            }
             Text(stat.number)
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundColor(.chieacSecondary)
-            
+                .foregroundColor(.chieacTextPrimary)
             Text(stat.label)
                 .font(.caption)
-                .fontWeight(.medium)
+                .fontWeight(.semibold)
                 .foregroundColor(.chieacTextSecondary)
+                .multilineTextAlignment(.center)
+            Text(stat.subtitle)
+                .font(.caption2)
+                .foregroundColor(.chieacTextSecondary)
+                .opacity(0.8)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
-        .background(Color.white.opacity(0.8))
+        .background(Color.white)
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
     }
@@ -33,7 +42,7 @@ struct ImpactStatCard: View {
 
 struct ImpactStatCard_Previews: PreviewProvider {
     static var previews: some View {
-        ImpactStatCard(stat: ImpactStat(number: "1,600+", label: "Students Served"))
+    ImpactStatCard(stat: ImpactStat(id: "impact.preview.students_served", number: "1,600+", label: "Students Served", subtitle: "since 2020", icon: "graduationcap.fill"))
             .padding()
             .previewLayout(.sizeThatFits)
     }

@@ -82,6 +82,8 @@ struct HomeView: View {
 struct HeaderSection: View {
     let organization: OrganizationInfo
     @Environment(\.openURL) private var openURL
+    @State private var showVolunteerSheet = false
+    @State private var volunteerURL: String? = nil
     
     var body: some View {
         ZStack {
@@ -105,13 +107,13 @@ struct HeaderSection: View {
                 }
             )
             
-            VStack(spacing: 15) {
+            VStack(spacing: 12) {
                 // Logo + Name
                 VStack(spacing: 5) {
                     Image("chieac-logo-icon")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 80, height: 80)
+                        .frame(width: 70, height: 70)
                         .padding(20)
                         .background(Circle().fill(Color.white))
                         .shadow(color: .chieacPrimary.opacity(0.15), radius: 10, x: 0, y: 6)
@@ -130,11 +132,8 @@ struct HeaderSection: View {
                 
                 // Tagline chip
                 HStack(spacing: 8) {
-//                    Image(systemName: "heart.fill")
-//                        .foregroundColor(.chieacSecondary)
                     Text(organization.tagline)
-//                        .font(.system(size: 12, weight: .light))
-                        .font(.chieacTagline)
+                        .font(.chieacBody)
                         .foregroundColor(.chieacTextSecondary)
                         .multilineTextAlignment(.center)
                 }
@@ -145,7 +144,7 @@ struct HeaderSection: View {
                         .fill(Color.white)
                         .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
                 )
-                .padding(.horizontal, 30)
+                .padding(.horizontal, 15)
                 
                 // CTA buttons
                 HStack(spacing: 14) {
@@ -159,25 +158,37 @@ struct HeaderSection: View {
                     .buttonStyle(PrimaryCTAButtonStyle())
                     
                     Button(action: {
-                        if let url = URL(string: "mailto:\(organization.contactEmail)") {
-                            openURL(url)
-                        }
+                        if volunteerURL != nil { showVolunteerSheet = true }
                     }) {
                         HStack(spacing: 8) {
-                            Text("Refer a Student")
+                            Text("Volunteer")
                         }
                         .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(OutlineCTAButtonStyle())
+                    .disabled(volunteerURL == nil)
                 }
                 .padding(.horizontal, 30)
                 .padding(.top, 2)
+                .sheet(isPresented: $showVolunteerSheet) {
+                    if let url = volunteerURL {
+                        ExternalLinkWebView(urlString: url, title: "Volunteer")
+                    } else {
+                        Text("Volunteer link unavailable.").padding()
+                    }
+                }
             }
-            .padding(.bottom, 26)
+            .padding(.bottom, 20)
             .padding(.top, 64)
         }
         .frame(maxWidth: .infinity)
         .background(Color.white)
+        .onAppear {
+            if volunteerURL == nil {
+                let links = LocalRepository.shared.loadExternalLinks()
+                volunteerURL = links.first(where: { $0.name.lowercased() == "volunteer" })?.address
+            }
+        }
     }
 }
 
@@ -187,7 +198,7 @@ struct MissionSection: View {
     let isLoading: Bool
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 15) {
             if isLoading {
                 // Loading state for mission section
                 VStack(spacing: 16) {
@@ -204,19 +215,17 @@ struct MissionSection: View {
                     .font(.chieacHero)
                     .foregroundColor(.chieacTextPrimary)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(4)
+//                    .lineSpacing()
                 
                 // Description using ViewModel data
                 Text(organizationData.description)
                     .font(.body)
                     .foregroundColor(.chieacTextSecondary)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(4)
-                    .padding(.horizontal, 10)
             }
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 30)
+        .padding(.vertical, 20)
         .background(Color.chieacCardGreen)
         .cornerRadius(20)
         .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
@@ -246,7 +255,7 @@ struct CoreWorkSection: View {
                 }
             } else {
                 LazyVGrid(columns: columns, spacing: 14) {
-                    ForEach(coreWork, id: \.title) { work in
+                    ForEach(coreWork) { work in
                         CoreWorkCard(work: work)
                     }
                 }
@@ -283,7 +292,7 @@ struct ImpactStatsSection: View {
             } else {
                 // Using ViewModel data for stats
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 14) {
-                    ForEach(impactStats, id: \.label) { stat in
+                    ForEach(impactStats) { stat in
                         ImpactStatCard(stat: stat)
                     }
                 }
@@ -404,7 +413,7 @@ struct ArticlesSection: View {
             }
         }
         .sheet(item: $selectedArticle, content: { article in
-            ArticleWebView(urlString: article.mediumLink, title: "Article")
+            ExternalLinkWebView(urlString: article.mediumLink, title: "Article")
         })
     }
 }
@@ -512,15 +521,16 @@ struct ImpactStatLoadingSkeleton: View {
 // Inline web components removed in favor of dedicated ArticleView
 struct CoreWorkCard: View {
     let work: CoreWork
+    private let accentColor: Color = .chieacSecondary
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             ZStack {
                 Circle()
-                    .fill(work.color.opacity(0.15))
+                    .fill(accentColor.opacity(0.15))
                     .frame(width: 46, height: 46)
                 Image(systemName: work.icon)
-                    .foregroundColor(work.color)
+                    .foregroundColor(accentColor)
             }
             
             Text(work.title)
