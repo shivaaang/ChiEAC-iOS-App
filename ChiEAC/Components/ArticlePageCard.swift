@@ -42,7 +42,7 @@ struct ArticlePageCard: View {
             }
             .frame(width: 132, height: 100)
             .clipped()
-            .cornerRadius(10)
+            .cornerRadius(16)
         }
         .padding(20)
         .background(Color.white)
@@ -76,7 +76,7 @@ private struct TagWrap: View {
                             .padding(.vertical, 3)
                             .background(Color(UIColor.systemGray6))
                             .foregroundColor(.chieacTextSecondary)
-                            .cornerRadius(10)
+                            .cornerRadius(16)
                     }
                 }
             }

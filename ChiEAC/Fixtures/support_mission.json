@@ -1,0 +1,47 @@
+{
+  "headerTitle": "Make a Real Difference in Chicago Communities",
+  "mission": {
+    "intro": "Your gift to ChiEAC’s Community Impact Fund changes lives",
+    "support": "Your gift supports migrant students and families, first generation college students, and underserved communities across Chicago with direct assistance, trusted programs, and lasting opportunities.",
+    "change": "This is not just charity. This is how change begins...person to person, family to family."
+  },
+  "impactNumbers": [
+    { "number": "100%", "label": "Community Trust", "subtitle": "volunteer powered", "icon": "heart.fill" },
+    { "number": "$1 = $5", "label": "Impact Multiplier", "subtitle": "through partnerships", "icon": "dollarsign.circle.fill" }
+  ],
+  "donationLevelsHeading": "What Your Gift Provides",
+  "donationLevels": [
+    { "icon": "iphone", "amount": "$65", "title": "gives a lifeline", "description": "Provides a newly arrived migrant family with a phone, unlimited data, and hotspot access for one month. This allows them to stay in touch with caseworkers, apply for school and work, and connect with loved ones." },
+    { "icon": "bus.fill", "amount": "$25", "title": "opens a door", "description": "Covers public transit for students and parents to get to school, legal appointments, or medical care. A ride should never be the reason someone is left behind." },
+    { "icon": "book.fill", "amount": "$100", "title": "empowers a student", "description": "Supports a young person in our ELEVATE Program, giving them access to mentorship, tutoring, and culturally grounded college and career guidance." },
+    { "icon": "briefcase.fill", "amount": "$150", "title": "prepares for the future", "description": "Funds career readiness training through our IMPACT Program, including resume support, job search coaching, and financial literacy tools that change economic futures." },
+    { "icon": "brain", "amount": "$200", "title": "brings healing", "description": "Supports trauma-informed mental health sessions for families who have endured displacement, poverty, or violence. These small group sessions offer connection, coping tools, and peace of mind." },
+    { "icon": "scalemass", "amount": "$500", "title": "provides hope through legal help", "description": "Helps us grow our volunteer legal clinic, where families receive trusted guidance on asylum cases, work permits, and school enrollment—free of charge." }
+  ],
+  "longTermSolutions": {
+    "title": "Your gift fuels long term solutions",
+    "paragraphs": [
+      "ChiEAC's Data Science Alliance transforms family stories into insight.",
+      "We analyze real-time feedback to improve our services, influence policy, and hold institutions accountable. Your support helps us lead with data and heart."
+    ]
+  },
+  "whyChiEAC": {
+    "title": "Why Now? Why ChiEAC?",
+    "paragraphs": [
+      "Since 2020, ChiEAC has served over 500 families—stretching every dollar through volunteer power, partnerships, and deep trust in the community.",
+      "We do more with less, because we listen more, care more, and show up where others do not.",
+      "Give today. Be part of something that matters."
+    ]
+  },
+  "cta": {
+    "headline": "Together, we can build a Chicago where every family has a fair chance.",
+    "subheadline": "Join hundreds of supporters who believe in creating lasting change through direct action and community-driven solutions.",
+    "buttonLabel": "Donate Now",
+    "reassuranceText": "You'll receive a tax receipt for making a donation",
+    "badges": [
+      { "emoji": "🔒", "label": "Secure" },
+      { "emoji": "🏆", "label": "501(c)(3)" },
+      { "emoji": "💯", "label": "Tax Deductible" }
+    ]
+  }
+}

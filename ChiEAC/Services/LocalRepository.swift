@@ -16,6 +16,7 @@ protocol DataRepository {
     func loadOrganizationInfo() -> OrganizationInfo?
     func loadArticles() -> [Article]
     func loadExternalLinks() -> [ExternalLink]
+    func loadSupportMissionContent() -> SupportMissionContent?
 }
 
 class LocalRepository: DataRepository {
@@ -66,6 +67,11 @@ class LocalRepository: DataRepository {
     
     func loadExternalLinks() -> [ExternalLink] {
         decode([ExternalLink].self, from: "external_links") ?? Self.externalLinksFallback
+    }
+
+    func loadSupportMissionContent() -> SupportMissionContent? {
+        // Renamed to singleton style filename support_mission.json
+        decode(SupportMissionContent.self, from: "support_mission")
     }
 
     // MARK: - Decoding helpers
@@ -121,7 +127,7 @@ extension LocalRepository {
     
     static let programsFallback: [ProgramInfo] = [
         ProgramInfo(
-            id: "2WYBIqcVp9l47wdM2kZf",
+            id: "program.elevate",
             title: "ELEVATE",
             subtitle: "Professional Development",
             description: "Custom professional development opportunities tailored to the unique needs and aspirations of rising scholars. Built on principles of empowerment, mentorship, and growth.",
@@ -141,7 +147,7 @@ extension LocalRepository {
             contactEmail: "elevate@chieac.org"
         ),
         ProgramInfo(
-            id: "IMKzN3ImmDmqHxeJqKRI",
+            id: "program.data_science_alliance",
             title: "DATA SCIENCE ALLIANCE",
             subtitle: "Analytics Platform",
             description: "Platform for international students with degrees in business analytics, machine learning, and artificial intelligence to develop skills and gain real-world experience in American work culture.",
@@ -162,7 +168,7 @@ extension LocalRepository {
             contactEmail: "datascience@chieac.org"
         ),
         ProgramInfo(
-            id: "xrrZ9zQFXLRrq97BsdmM",
+            id: "program.impact",
             title: "IMPACT",
             subtitle: "Family Advocacy",
             description: "First-responder advocates addressing immediate and ongoing needs of students and families in challenging situations. Providing personalized support and guidance during critical moments.",

@@ -31,11 +31,11 @@ struct ArticlesFilterPopupCard: View {
             }
             .padding(16)
             .background(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(Color.chieacCardBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .stroke(Color.chieacMintGreen.opacity(0.55), lineWidth: 1)
             )
             .shadow(color: .black.opacity(0.15), radius: 14, x: 0, y: 6)

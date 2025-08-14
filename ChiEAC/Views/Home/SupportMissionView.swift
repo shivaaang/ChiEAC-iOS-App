@@ -10,34 +10,65 @@ import SwiftUI
 struct SupportMissionView: View {
     @State private var showDonationView = false
     @State private var donationURL: String? = nil
+    @State private var callToActionTop: CGFloat = .greatestFiniteMagnitude
+    @State private var containerBottom: CGFloat = 0
+    @State private var content: SupportMissionContent? = nil
     
     var body: some View {
-        ScrollView {
-                VStack(spacing: 15) {
-                    // Header Section
-                    SupportMissionHeaderSection()
-                    
-                    // Mission Statement
-                    MissionStatementSection()
-                    
-                    // Impact Numbers
-                    ImpactNumbersSection()
-                    
-                    // What Your Gift Provides
-                    DonationImpactSection()
-                    
-                    // Long-term Solutions
-                    LongTermSolutionsSection()
-                    
-                    // Why ChiEAC
-                    WhyChiEACSection()
-                    
-                    // Call to Action
-                    CallToActionSection(showDonationView: $showDonationView, isEnabled: donationURL != nil)
-                    
-                    Spacer(minLength: 20)
+        GeometryReader { outer in
+            ZStack(alignment: .bottom) {
+                ScrollView {
+                    VStack(spacing: 15) {
+                        // Header Section
+                        SupportMissionHeaderSection(title: content?.headerTitle)
+                        
+                        // Mission Statement
+                        if let c = content { MissionStatementSection(copy: c.mission) }
+                        
+                        // Impact Numbers
+                        if let c = content { ImpactNumbersSection(stats: c.impactNumbers) }
+                        
+                        // What Your Gift Provides
+                        if let c = content { DonationImpactSection(heading: c.donationLevelsHeading, levels: c.donationLevels) }
+                        
+                        // Long-term Solutions
+                        if let c = content { LongTermSolutionsSection(section: c.longTermSolutions) }
+                        
+                        // Why ChiEAC
+                        if let c = content { WhyChiEACSection(section: c.whyChiEAC) }
+                        
+                        // Call to Action (tracked for visibility)
+                        if let c = content {
+                            CallToActionSection(showDonationView: $showDonationView, isEnabled: donationURL != nil, cta: c.cta)
+                                .background(
+                                    GeometryReader { geo in
+                                        Color.clear
+                                            .preference(key: CallToActionTopKey.self, value: geo.frame(in: .global).minY)
+                                    }
+                                )
+                        }
+                        
+                        Spacer(minLength: 20)
+                    }
+                    .padding(.horizontal, 20)
+                    .onAppear {
+                        containerBottom = outer.frame(in: .global).maxY
+                    }
                 }
-                .padding(.horizontal, 20)
+                
+                // Floating Donate Button
+                if shouldShowFloatingButton(globalVisibleBottom: outer.frame(in: .global).maxY) {
+                    FloatingDonateButton(isEnabled: donationURL != nil) {
+                        if donationURL != nil { showDonationView = true }
+                    }
+                    .padding(.bottom, 12)
+                    .padding(.horizontal, 24)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .onPreferenceChange(CallToActionTopKey.self) { value in
+                callToActionTop = value
+            }
         }
         .background(Color.chieacLightBackground)
         .navigationTitle("Support Our Mission")
@@ -56,12 +87,58 @@ struct SupportMissionView: View {
                 let links = LocalRepository.shared.loadExternalLinks()
                 donationURL = links.first(where: { $0.name.lowercased() == "donation" })?.address
             }
+            if content == nil {
+                content = LocalRepository.shared.loadSupportMissionContent()
+            }
         }
+    }
+    
+    private func shouldShowFloatingButton(globalVisibleBottom: CGFloat) -> Bool {
+        // Show while top of CallToActionSection is still below (not yet intersecting) visible bottom minus small threshold
+        let threshold: CGFloat = 20
+        return callToActionTop > (globalVisibleBottom - threshold)
+    }
+}
+
+// PreferenceKey to track the global minY of the CallToActionSection
+private struct CallToActionTopKey: PreferenceKey {
+    static var defaultValue: CGFloat = .greatestFiniteMagnitude
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = min(value, nextValue())
+    }
+}
+
+// Floating Donate Button component
+private struct FloatingDonateButton: View {
+    let isEnabled: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: { if isEnabled { action() } }) {
+            HStack(spacing: 10) {
+                Image(systemName: "heart.fill")
+                    .font(.headline)
+                Text("Donate Now")
+                    .font(.chieacButtonText)
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(
+                Capsule()
+                    .fill(LinearGradient(gradient: Gradient(colors: [.chieacSecondary, .chieacPrimary]), startPoint: .leading, endPoint: .trailing))
+            )
+            .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 3)
+        }
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.7)
+        .accessibilityLabel("Donate Now")
     }
 }
 
 // MARK: - Header Section
 struct SupportMissionHeaderSection: View {
+    let title: String?
     var body: some View {
         VStack(spacing: 10) {
             // Logo
@@ -74,9 +151,8 @@ struct SupportMissionHeaderSection: View {
                 .shadow(color: .chieacPrimary.opacity(0.2), radius: 8, x: 0, y: 4)
             
             VStack(spacing: 12) {
-                Text("Make a Real Difference in Chicago Communities")
-                    .font(.title)
-                    .fontWeight(.bold)
+                Text(title ?? "")
+                    .font(.chieacSectionHeader)
                     .foregroundColor(.chieacPrimary)
                     .multilineTextAlignment(.center)
             }
@@ -87,301 +163,149 @@ struct SupportMissionHeaderSection: View {
 
 // MARK: - Mission Statement Section
 struct MissionStatementSection: View {
+    let copy: MissionCopy
     var body: some View {
-        VStack(spacing: 15) {
-            Text("When you give to the ChiEAC Community Impact Fund, you are changing lives.")
-                .font(.title3)
-                .fontWeight(.bold)
+        VStack(spacing: 10) {
+            Text(copy.intro)
+                .font(.chieacHero)
                 .foregroundColor(.chieacTextPrimary)
                 .multilineTextAlignment(.center)
-                .lineSpacing(4)
             
-            Text("Your gift supports migrant students and families, first generation college students, and underserved communities across Chicago with direct assistance, trusted programs, and lasting opportunities.")
-                .font(.body)
+            Text(copy.support)
+                .font(.chieacBody)
                 .foregroundColor(.chieacTextSecondary)
                 .multilineTextAlignment(.center)
-                .lineSpacing(4)
             
-            Text("This is not just charity. This is how change begins...person to person, family to family.")
-                .font(.body)
-                .fontWeight(.medium)
+            Text(copy.change)
+                .font(.chieacBodySecondary)
                 .foregroundColor(.chieacSecondary)
                 .multilineTextAlignment(.center)
                 .italic()
-                .padding(.top, 12)
-        }
-        .padding(24)
-        .background(Color.chieacCardGreen)
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
+    }
+    .padding(20)
+    .background(Color.white)
+    .cornerRadius(16)
+    .shadow(color: .black.opacity(0.06), radius: 5, x: 0, y: 2)
     }
 }
 
-// MARK: - Impact Numbers Section
+// MARK: - Impact Numbers Section (reusing ImpactStatCard)
 struct ImpactNumbersSection: View {
-    let stats = [
-        ImpactNumber(number: "500+", label: "Families Served", subtitle: "since 2020", icon: "house.fill"),
-        ImpactNumber(number: "1,600+", label: "Students Supported", subtitle: "across Chicago", icon: "graduationcap.fill"),
-        ImpactNumber(number: "100%", label: "Community Trust", subtitle: "volunteer powered", icon: "heart.fill"),
-        ImpactNumber(number: "$1 = $5", label: "Impact Multiplier", subtitle: "through partnerships", icon: "dollarsign.circle.fill")
-    ]
+    let stats: [ImpactNumberContent]
+    
+    private var mapped: [ImpactStat] {
+        stats.map { ImpactStat(id: "supportImpact." + $0.id, number: $0.number, label: $0.label, subtitle: $0.subtitle, icon: $0.icon) }
+    }
     
     var body: some View {
         VStack(spacing: 15) {
-            HStack {
-                Image(systemName: "chart.bar.fill")
-                    .foregroundColor(.chieacSecondary)
-                    .font(.title2)
-                
-                Text("Our Proven Impact")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.chieacTextPrimary)
-                
-                Spacer()
-            }
-            
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
-                ForEach(stats, id: \.number) { stat in
-                    ImpactNumberCard(stat: stat)
+                ForEach(mapped) { stat in
+                    ImpactStatCard(stat: stat)
                 }
             }
         }
     }
 }
 
-struct ImpactNumber {
-    let number: String
-    let label: String
-    let subtitle: String
-    let icon: String
-}
-
-struct ImpactNumberCard: View {
-    let stat: ImpactNumber
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: stat.icon)
-                .font(.title2)
-                .foregroundColor(.chieacSecondary)
-            
-            Text(stat.number)
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.chieacTextPrimary)
-            
-            Text(stat.label)
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(.chieacTextSecondary)
-                .multilineTextAlignment(.center)
-            
-            Text(stat.subtitle)
-                .font(.caption2)
-                .foregroundColor(.chieacTextSecondary)
-                .opacity(0.8)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-    }
-}
-
 // MARK: - Donation Impact Section
 struct DonationImpactSection: View {
-    let donationLevels = [
-        DonationLevel(
-            emoji: "📱",
-            amount: "$65",
-            title: "gives a lifeline",
-            description: "Provides a newly arrived migrant family with a phone, unlimited data, and hotspot access for one month. This allows them to stay in touch with caseworkers, apply for school and work, and connect with loved ones.",
-            color: Color.chieacPrimary
-        ),
-        DonationLevel(
-            emoji: "🚍",
-            amount: "$25",
-            title: "opens a door",
-            description: "Covers public transit for students and parents to get to school, legal appointments, or medical care. A ride should never be the reason someone is left behind.",
-            color: Color(hex: "#28a745")
-        ),
-        DonationLevel(
-            emoji: "📚",
-            amount: "$100",
-            title: "empowers a student",
-            description: "Supports a young person in our ELEVATE Program, giving them access to mentorship, tutoring, and culturally grounded college and career guidance.",
-            color: Color(hex: "#17a2b8")
-        ),
-        DonationLevel(
-            emoji: "💼",
-            amount: "$150",
-            title: "prepares for the future",
-            description: "Funds career readiness training through our IMPACT Program, including resume support, job search coaching, and financial literacy tools that change economic futures.",
-            color: Color(hex: "#6f42c1")
-        ),
-        DonationLevel(
-            emoji: "🧠",
-            amount: "$200",
-            title: "brings healing",
-            description: "Supports trauma-informed mental health sessions for families who have endured displacement, poverty, or violence. These small group sessions offer connection, coping tools, and peace of mind.",
-            color: Color(hex: "#fd7e14")
-        ),
-        DonationLevel(
-            emoji: "⚖️",
-            amount: "$500",
-            title: "provides hope through legal help",
-            description: "Helps us grow our volunteer legal clinic, where families receive trusted guidance on asylum cases, work permits, and school enrollment—free of charge.",
-            color: Color.chieacSecondary
-        )
-    ]
+    let heading: String
+    let levels: [DonationLevelContent]
     
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                Text("💡")
-                    .font(.title2)
-                
-                Text("What Your Gift Provides")
-                    .font(.title2)
-                    .fontWeight(.bold)
+                Text(heading)
+                    .font(.chieacHero)
                     .foregroundColor(.chieacTextPrimary)
-                
                 Spacer()
             }
-            
             VStack(spacing: 16) {
-                ForEach(donationLevels, id: \.amount) { level in
+                ForEach(levels) { level in
                     DonationLevelCard(level: level)
                 }
             }
         }
     }
 }
-
-struct DonationLevel {
-    let emoji: String
-    let amount: String
-    let title: String
-    let description: String
-    let color: Color
-}
-
 struct DonationLevelCard: View {
-    let level: DonationLevel
+    let level: DonationLevelContent
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                Text(level.emoji)
-                    .font(.title)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
-                        Text(level.amount)
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundColor(level.color)
-                        
-                        Text(level.title)
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.chieacTextPrimary)
-                    }
-                }
-                
-                Spacer()
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Image(systemName: level.icon)
+                    .font(.chieacCardTitle)
+                    .foregroundColor(.chieacSecondary)
+                Text(level.amount)
+                    .font(.chieacCardTitle)
+                    .foregroundColor(.chieacTextPrimary) // no special color now
+                Text(level.title)
+                    .font(.chieacCardSubtitle)
+                    .foregroundColor(.chieacTextPrimary)
+                Spacer(minLength: 0)
             }
-            
             Text(level.description)
-                .font(.body)
+                .font(.chieacBody)
                 .foregroundColor(.chieacTextSecondary)
                 .lineSpacing(3)
-        }
-        .padding(20)
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+    }
+    .padding(20)
+    .background(Color.white)
+    .cornerRadius(16)
+    .shadow(color: .black.opacity(0.06), radius: 5, x: 0, y: 2)
     }
 }
 
 // MARK: - Long Term Solutions Section
 struct LongTermSolutionsSection: View {
+    let section: SectionWithParagraphs
     var body: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Text("📊")
-                    .font(.title2)
-                
-                Text("Your gift also fuels long-term solutions")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.chieacTextPrimary)
-                
-                Spacer()
-            }
-            
-            VStack(alignment: .leading, spacing: 12) {
-                Text("ChiEAC's Data Science Alliance transforms family stories into insight.")
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.chieacTextPrimary)
-                    .lineSpacing(3)
-                
-                Text("We analyze real-time feedback to improve our services, influence policy, and hold institutions accountable. Your support helps us lead with data and heart.")
-                    .font(.body)
-                    .foregroundColor(.chieacTextSecondary)
+        VStack(alignment: .leading, spacing: 10) {
+            Text(section.title)
+                .font(.chieacHero)
+                .foregroundColor(.chieacTextPrimary)
+                .padding(.bottom, 4)
+            ForEach(section.paragraphs.indices, id: \.self) { idx in
+                let text = section.paragraphs[idx]
+                Text(text)
+                    .font(idx == 0 ? .chieacBodySecondary : .chieacBody)
+                    .foregroundColor(idx == 0 ? .chieacTextPrimary : .chieacTextSecondary)
                     .lineSpacing(3)
             }
-        }
-        .padding(20)
-        .background(Color.chieacCardGreen)
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(20)
+    .background(Color.white)
+    .cornerRadius(16)
+    .shadow(color: .black.opacity(0.06), radius: 5, x: 0, y: 2)
     }
 }
 
 // MARK: - Why ChiEAC Section
 struct WhyChiEACSection: View {
+    let section: SectionWithParagraphs
     var body: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Text("💙")
-                    .font(.title2)
-                
-                Text("Why Now? Why ChiEAC?")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.chieacTextPrimary)
-                
-                Spacer()
-            }
-            
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Since 2020, ChiEAC has served over 500 families—stretching every dollar through volunteer power, partnerships, and deep trust in the community.")
-                    .font(.body)
-                    .foregroundColor(.chieacTextSecondary)
+        VStack(alignment: .leading, spacing: 10) {
+            Text(section.title)
+                .font(.chieacHero)
+                .foregroundColor(.chieacTextPrimary)
+                .padding(.bottom, 4)
+            ForEach(section.paragraphs.indices, id: \.self) { idx in
+                let text = section.paragraphs[idx]
+                Text(text)
+                    .font(idx == 1 ? .chieacBodySecondary : (idx == section.paragraphs.count - 1 ? .chieacCardTitle : .chieacBody))
+                    .foregroundColor(idx == 1 ? .chieacPrimary : (idx == section.paragraphs.count - 1 ? .chieacSecondary : .chieacTextSecondary))
                     .lineSpacing(3)
-                
-                Text("We do more with less, because we listen more, care more, and show up where others do not.")
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.chieacPrimary)
-                    .lineSpacing(3)
-                
-                Text("Give today. Be part of something that matters.")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.chieacSecondary)
-                    .padding(.top, 8)
+                    .padding(.top, idx == section.paragraphs.count - 1 ? 8 : 0)
             }
-        }
-        .padding(20)
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(20)
+    .background(Color.white)
+    .cornerRadius(16)
+    .shadow(color: .black.opacity(0.06), radius: 5, x: 0, y: 2)
     }
 }
 
@@ -389,86 +313,70 @@ struct WhyChiEACSection: View {
 struct CallToActionSection: View {
     @Binding var showDonationView: Bool
     let isEnabled: Bool
+    let cta: SupportCTAContent
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 12) {
             VStack(spacing: 12) {
-                Text("Together, we can build a Chicago where every family has a fair chance.")
-                    .font(.title2)
-                    .fontWeight(.bold)
+                Text(cta.headline)
+                    .font(.chieacHero)
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(4)
+//                    .lineSpacing(4)
                 
-                Text("Join hundreds of supporters who believe in creating lasting change through direct action and community-driven solutions.")
-                    .font(.body)
+                Text(cta.subheadline)
+                    .font(.chieacBody)
                     .foregroundColor(.white)
                     .opacity(0.95)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(3)
+//                    .lineSpacing(3)
             }
             
             Button(action: { if isEnabled { showDonationView = true } }) {
                 HStack(spacing: 12) {
-                    Text("❤️")
-                        .font(.headline)
+                    if let heart = cta.badges.first(where: { $0.label.lowercased().contains("secure") == false })?.emoji {
+                        Text(heart)
+                            .font(.headline)
+                    }
                     
-                    Text("Donate Now")
-                        .font(.headline)
+                    Text(cta.buttonLabel)
+                        .font(.chieacButtonText)
                         .fontWeight(.semibold)
                 }
                 .foregroundColor(.chieacPrimary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 18)
                 .background(Color.white)
-                .cornerRadius(12)
+                .cornerRadius(16)
                 .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 3)
             }
             .disabled(!isEnabled)
             .opacity(isEnabled ? 1.0 : 0.7)
             
-            Text(isEnabled ? "You'll receive a tax receipt for making a donation" : "Loading donation link…")
-                .font(.body)
+            Text(isEnabled ? cta.reassuranceText : "Loading donation link…")
+                .font(.chieacBody)
                 .foregroundColor(.white)
                 .opacity(0.95)
                 .multilineTextAlignment(.center)
-                .padding(.top, 8)
+//                .padding(.top, 8)
             
             HStack(spacing: 16) {
-                VStack(spacing: 4) {
-                    Text("🔒")
-                        .font(.caption)
-                    Text("Secure")
-                        .font(.caption2)
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                        .opacity(0.9)
-                }
-                
-                VStack(spacing: 4) {
-                    Text("🏆")
-                        .font(.caption)
-                    Text("501(c)(3)")
-                        .font(.caption2)
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                        .opacity(0.9)
-                }
-                
-                VStack(spacing: 4) {
-                    Text("💯")
-                        .font(.caption)
-                    Text("Tax Deductible")
-                        .font(.caption2)
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                        .opacity(0.9)
+                ForEach(cta.badges) { badge in
+                    VStack(spacing: 4) {
+                        Text(badge.emoji)
+                            .font(.caption)
+                        Text(badge.label)
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .opacity(0.9)
+                    }
                 }
             }
         }
-        .padding(28)
+        .padding(24)
         .background(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 16)
                 .fill(
                     LinearGradient(
                         gradient: Gradient(colors: [.chieacPrimary, .chieacSecondary]),
@@ -477,7 +385,7 @@ struct CallToActionSection: View {
                     )
                 )
         )
-        .shadow(color: .chieacPrimary.opacity(0.3), radius: 8, x: 0, y: 4)
+        .shadow(color: .chieacPrimary.opacity(0.25), radius: 7, x: 0, y: 3)
     }
 }
 

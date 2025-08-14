@@ -8,6 +8,60 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Support Mission Page Models
+struct SupportMissionContent: Decodable {
+    let headerTitle: String
+    let mission: MissionCopy
+    let impactNumbers: [ImpactNumberContent]
+    let donationLevelsHeading: String
+    let donationLevels: [DonationLevelContent]
+    let longTermSolutions: SectionWithParagraphs
+    let whyChiEAC: SectionWithParagraphs
+    let cta: SupportCTAContent
+}
+
+struct MissionCopy: Decodable {
+    let intro: String
+    let support: String
+    let change: String
+}
+
+struct ImpactNumberContent: Decodable, Identifiable {
+    var id: String { number + label }
+    let number: String
+    let label: String
+    let subtitle: String
+    let icon: String
+}
+
+struct DonationLevelContent: Decodable, Identifiable {
+    var id: String { amount + title }
+    let icon: String
+    let amount: String
+    let title: String
+    let description: String
+}
+
+struct SectionWithParagraphs: Decodable {
+    let title: String
+    let paragraphs: [String]
+}
+
+struct SupportCTAContent: Decodable {
+    let headline: String
+    let subheadline: String
+    let buttonLabel: String
+    let reassuranceText: String
+    let badges: [SupportCTABadge]
+}
+
+struct SupportCTABadge: Decodable, Identifiable {
+    var id: String { label }
+    let emoji: String
+    let label: String
+}
+
+
 // MARK: - Core Work Data
 struct CoreWork: Identifiable, Codable {
     let id: String

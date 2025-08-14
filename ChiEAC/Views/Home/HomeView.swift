@@ -20,7 +20,7 @@ struct HomeView: View {
                         HeaderSection(organization: orgData)
                         
                         // Main Content
-                        VStack(spacing: 40) {
+                        VStack(spacing: 20) {
                             // Mission Statement
                             MissionSection(
                                 organizationData: orgData,
@@ -140,7 +140,7 @@ struct HeaderSection: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 16)
                         .fill(Color.white)
                         .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
                 )
@@ -227,7 +227,7 @@ struct MissionSection: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 20)
         .background(Color.chieacCardGreen)
-        .cornerRadius(20)
+    .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
     }
 }
@@ -300,7 +300,7 @@ struct ImpactStatsSection: View {
         }
         .padding(20)
         .background(Color.chieacCardGreen)
-        .cornerRadius(20)
+    .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
     }
 }
@@ -339,7 +339,7 @@ struct LearnMoreSection: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(Color.white)
-                .cornerRadius(12)
+                .cornerRadius(16)
                 .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
             }
         }
@@ -363,9 +363,9 @@ struct LearnMoreSection: View {
                 )
             }
         )
-        .cornerRadius(20)
+    .cornerRadius(16)
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 16)
                 .stroke(Color(UIColor.systemGray5), lineWidth: 1)
         )
         .shadow(color: .chieacPrimary.opacity(0.3), radius: 8, x: 0, y: 4)
@@ -490,7 +490,7 @@ struct CoreWorkLoadingSkeleton: View {
         }
         .padding(16)
         .background(Color.chieacCardGreen.opacity(0.6))
-        .cornerRadius(14)
+        .cornerRadius(16)
         .redacted(reason: .placeholder)
     }
 }
@@ -511,7 +511,7 @@ struct ImpactStatLoadingSkeleton: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
         .background(Color.white.opacity(0.7))
-        .cornerRadius(12)
+        .cornerRadius(16)
         .redacted(reason: .placeholder)
     }
 }
@@ -527,7 +527,7 @@ struct PrimaryCTAButtonStyle: ButtonStyle {
             .foregroundColor(.white)
             .padding(.vertical, 14)
             .background(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 16)
                     .fill(Color.chieacPrimary.opacity(configuration.isPressed ? 0.85 : 1.0))
             )
             .shadow(color: .chieacPrimary.opacity(0.25), radius: 6, x: 0, y: 4)
@@ -542,9 +542,9 @@ struct OutlineCTAButtonStyle: ButtonStyle {
             .foregroundColor(.chieacPrimary)
             .padding(.vertical, 14)
             .background(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 16)
                     .stroke(Color.chieacPrimary, lineWidth: 1.5)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+                    .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
             )
             .opacity(configuration.isPressed ? 0.8 : 1.0)
             .contentShape(Rectangle())

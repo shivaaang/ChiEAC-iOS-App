@@ -10,9 +10,10 @@ import SwiftUI
 struct CoreWorkCard: View {
     let work: CoreWork
     private let accentColor: Color = .chieacSecondary
+    private let minHeight: CGFloat = 230
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: 12) {
             // Icon
             ZStack {
                 Circle()
@@ -38,6 +39,8 @@ struct CoreWorkCard: View {
                 .lineSpacing(2)
                 .lineLimit(5)
 
+            Spacer(minLength: 0)
+
             // Learn more affordance
             HStack(spacing: 6) {
                 Text("Learn more")
@@ -49,7 +52,8 @@ struct CoreWorkCard: View {
             }
             .padding(.top, 2)
         }
-        .padding(16)
+    .padding(16)
+    .frame(minHeight: minHeight, alignment: .top)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.white)
         .cornerRadius(16)

@@ -11,7 +11,7 @@ struct ImpactStatCard: View {
     let stat: ImpactStat
     
     var body: some View {
-        VStack(spacing: 5) {
+        VStack(spacing: 0) {
             if !stat.icon.isEmpty {
                 Image(systemName: stat.icon)
                     .font(.title2)
@@ -35,7 +35,7 @@ struct ImpactStatCard: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
         .background(Color.white)
-        .cornerRadius(12)
+        .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
     }
 }

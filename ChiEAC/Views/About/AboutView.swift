@@ -14,35 +14,12 @@ struct AboutView: View {
         NavigationView {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
-                    // Hero Header
-                    ZStack {
-                        LinearGradient(
-                            gradient: Gradient(colors: [.chieacMintGreen, .white]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                        VStack(spacing: 14) {
-                            Image(systemName: "person.3.fill")
-                                .font(.system(size: 56))
-                                .foregroundColor(.chieacSecondary)
-                                .padding(18)
-                                .background(Circle().fill(Color.white))
-                                .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
-                            
-                            Text("About Us")
-                                .font(.chieacAppTitle)
-                                .foregroundColor(.chieacPrimary)
-                            
-                            Text("Meet the passionate team behind ChiEAC's mission")
-                                .font(.chieacBody)
-                                .foregroundColor(.chieacTextSecondary)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 24)
-                        }
-                        .padding(.top, 60)
-                        .padding(.bottom, 24)
-                    }
-                    .frame(maxWidth: .infinity)
+                    // Hero Header (refactored)
+                    HeroHeader(
+                        title: "About Us",
+                        subtitle: "Meet the passionate team behind ChiEAC's mission",
+                        systemImage: "person.3.fill"
+                    )
                     
                     // Team summary cards
                     VStack(spacing: 16) {

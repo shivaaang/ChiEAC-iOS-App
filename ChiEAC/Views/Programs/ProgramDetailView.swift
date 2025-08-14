@@ -1,4 +1,3 @@
-//
 //  ProgramDetailView.swift
 //  ChiEAC
 //
@@ -116,12 +115,12 @@ struct ProgramDetailView: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .background(Color.white.opacity(0.2))
-                            .cornerRadius(12)
+                            .cornerRadius(16)
                     }
                 }
                 .padding(24)
                 .background(
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: 16)
                         .fill(
                             LinearGradient(
                                 gradient: Gradient(colors: [Color.chieacPrimary, Color.chieacPrimary.opacity(0.8)]),
