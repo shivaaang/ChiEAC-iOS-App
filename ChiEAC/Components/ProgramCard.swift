@@ -1,5 +1,5 @@
 //
-//  ProgramTile.swift
+//  ProgramCard.swift
 //  ChiEAC
 //
 //  Created by Shivaang Kumar on 8/9/25.
@@ -7,34 +7,34 @@
 
 import SwiftUI
 
-struct ProgramTile: View {
+struct ProgramCard: View {
     let program: ProgramInfo
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading, spacing: 16) {
             // Header with icon
             HStack(alignment: .top, spacing: 16) {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(program.color.opacity(0.15))
+                        .fill(Color.chieacPrimary.opacity(0.15))
                         .frame(width: 60, height: 60)
                     
                     Image(systemName: program.icon)
                         .font(.title2)
-                        .foregroundColor(program.color)
+                        .foregroundColor(.chieacPrimary)
                 }
                 
                 // Title section
                 VStack(alignment: .leading, spacing: 6) {
                     Text(program.title)
-                        .font(.chieacCardTitle)
+                        .font(.chieacHero) // match TeamCard title style
                         .foregroundColor(.chieacTextPrimary)
                         .multilineTextAlignment(.leading)
                     
                     Text(program.subtitle)
                         .font(.chieacCardSubtitle)
-                        .foregroundColor(program.color)
+                        .foregroundColor(.chieacPrimary)
                 }
                 
                 Spacer()
@@ -58,34 +58,37 @@ struct ProgramTile: View {
                     ForEach(program.benefits.prefix(2), id: \.self) { benefit in
                         Text(benefit)
                             .font(.chieacCaption)
-                            .foregroundColor(program.color)
+                            .foregroundColor(.chieacPrimary)
                             .fontWeight(.medium)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
             }
         }
-        .padding(24)
-        .background(Color.chieacCardGreen)
+        .padding(20)
+        .background(Color.white)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(program.color.opacity(0.3), lineWidth: 2)
+                .stroke(Color.chieacMintGreen.opacity(0.6), lineWidth: 1)
+        )
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.chieacCardGreen)
         )
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
     }
 }
 
-struct ProgramTile_Previews: PreviewProvider {
+struct ProgramCard_Previews: PreviewProvider {
     static var previews: some View {
-        ProgramTile(program: ProgramInfo(
+    ProgramCard(program: ProgramInfo(
             title: "ELEVATE",
             subtitle: "Professional Development",
             description: "Custom professional development opportunities tailored to the unique needs and aspirations of rising scholars.",
             benefits: ["85 custom internships created since 2020", "90%+ participants gain career-relevant skills"],
             impact: ["Rising scholars connected with opportunities"],
             icon: "star.fill",
-            colorHex: "#12614d",
             contactEmail: "elevate@chieac.org"
         ))
         .padding()

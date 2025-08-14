@@ -264,7 +264,7 @@ struct CoreWorkSection: View {
     }
 }
 
-// CoreWorkTile component is now in Components/CoreWorkTile.swift
+// CoreWorkCard component is now in Components/CoreWorkCard.swift
 
 // MARK: - Impact Stats Section
 struct ImpactStatsSection: View {
@@ -518,53 +518,7 @@ struct ImpactStatLoadingSkeleton: View {
 
 // MARK: - New UI Components
 
-// Inline web components removed in favor of dedicated ArticleView
-struct CoreWorkCard: View {
-    let work: CoreWork
-    private let accentColor: Color = .chieacSecondary
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ZStack {
-                Circle()
-                    .fill(accentColor.opacity(0.15))
-                    .frame(width: 46, height: 46)
-                Image(systemName: work.icon)
-                    .foregroundColor(accentColor)
-            }
-            
-            Text(work.title)
-                .font(.chieacCardTitle)
-                .foregroundColor(.chieacTextPrimary)
-                .lineLimit(2)
-                .minimumScaleFactor(0.9)
-            
-            Text(work.description)
-                .font(.chieacCardBody)
-                .foregroundColor(.chieacTextSecondary)
-                .lineSpacing(2)
-                .lineLimit(4)
-            
-            HStack(spacing: 6) {
-                Text("Learn more")
-                    .font(.chieacCaption)
-                    .foregroundColor(.chieacSecondary)
-                Image(systemName: "arrow.right")
-                    .font(.caption)
-                    .foregroundColor(.chieacSecondary)
-            }
-            .padding(.top, 4)
-        }
-        .padding(16)
-        .background(Color.white)
-        .cornerRadius(14)
-        .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color(UIColor.systemGray5), lineWidth: 1)
-        )
-    }
-}
+// (Removed inline CoreWorkCard; now using Components/CoreWorkCard.swift)
 
 struct PrimaryCTAButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

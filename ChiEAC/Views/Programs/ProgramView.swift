@@ -58,7 +58,7 @@ struct ProgramsView: View {
                         VStack(spacing: 16) {
                             ForEach(viewModel.programs, id: \.id) { program in
                                 NavigationLink(destination: ProgramDetailView(program: program)) {
-                                    ProgramTile(program: program)
+                                    ProgramCard(program: program)
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
@@ -89,7 +89,7 @@ struct ProgramsView: View {
     }
 }
 
-// ProgramTile component is now in Components/ProgramTile.swift
+// ProgramCard component is now in Components/ProgramCard.swift
 
 // ProgramDetailView moved to its own file: Views/Programs/ProgramDetailView.swift
 

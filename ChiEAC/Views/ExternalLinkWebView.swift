@@ -2,7 +2,7 @@
 //  ExternalLinkWebView.swift
 //  ChiEAC
 //
-//  Consolidated web view for external links (articles, donation, etc.).
+//  Created by Shivaang Kumar on 8/9/25.
 //
 
 import SwiftUI

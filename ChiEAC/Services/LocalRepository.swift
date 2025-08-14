@@ -2,7 +2,7 @@
 //  LocalRepository.swift
 //  ChiEAC
 //
-//  Created to provide a JSON-backed local data source during app development.
+//  Created by Shivaang Kumar on 8/9/25.
 //
 
 import Foundation
@@ -138,7 +138,6 @@ extension LocalRepository {
                 "Strong professional networks built through mentorship relationships"
             ],
             icon: "star.fill",
-            colorHex: "#12614d",
             contactEmail: "elevate@chieac.org"
         ),
         ProgramInfo(
@@ -160,7 +159,6 @@ extension LocalRepository {
                 "Creating pathways to permanent employment opportunities"
             ],
             icon: "chart.bar.fill",
-            colorHex: "#007bff",
             contactEmail: "datascience@chieac.org"
         ),
         ProgramInfo(
@@ -182,7 +180,6 @@ extension LocalRepository {
                 "Critical educational advocacy ensuring equitable opportunities"
             ],
             icon: "heart.fill",
-            colorHex: "#dc3545",
             contactEmail: "impact@chieac.org"
         )
     ]

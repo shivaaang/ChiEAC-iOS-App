@@ -8,7 +8,6 @@
       "300+ hours of mentorship provided",
       "25 professional development workshops hosted"
     ],
-    "colorHex": "#12614d",
     "contactEmail": "elevate@chieac.org",
     "description": "Custom professional development opportunities tailored to the unique needs and aspirations of rising scholars. Built on principles of empowerment, mentorship, and growth.",
     "icon": "star.fill",
@@ -18,7 +17,7 @@
       "Strong professional networks built through mentorship relationships"
     ],
     "subtitle": "Professional Development",
-    "title": "ELEVATE"
+    "title": "Elevate"
   },
   {
     "id": "IMKzN3ImmDmqHxeJqKRI",
@@ -29,7 +28,6 @@
       "Networking opportunities with industry professionals",
       "Portfolio development through practical projects"
     ],
-    "colorHex": "#007bff",
     "contactEmail": "datascience@chieac.org",
     "description": "Platform for international students with degrees in business analytics, machine learning, and artificial intelligence to develop skills and gain real-world experience in American work culture.",
     "icon": "chart.bar.fill",
@@ -40,7 +38,7 @@
       "Creating pathways to permanent employment opportunities"
     ],
     "subtitle": "Analytics Platform",
-    "title": "DATA SCIENCE ALLIANCE"
+    "title": "Data Science Alliance"
   },
   {
     "id": "xrrZ9zQFXLRrq97BsdmM",
@@ -51,7 +49,6 @@
       "50+ IEPs successfully advocated",
       "95% of families connected to long-term services"
     ],
-    "colorHex": "#dc3545",
     "contactEmail": "impact@chieac.org",
     "description": "First-responder advocates addressing immediate and ongoing needs of students and families in challenging situations. Providing personalized support and guidance during critical moments.",
     "icon": "heart.fill",
@@ -62,6 +59,6 @@
       "Critical educational advocacy ensuring equitable opportunities"
     ],
     "subtitle": "Family Advocacy",
-    "title": "IMPACT"
+    "title": "Impact"
   }
 ]

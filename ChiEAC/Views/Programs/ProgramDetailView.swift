@@ -2,7 +2,7 @@
 //  ProgramDetailView.swift
 //  ChiEAC
 //
-//  Extracted from ProgramView for better separation of concerns.
+//  Created by Shivaang Kumar on 8/9/25.
 //
 
 import SwiftUI
@@ -18,12 +18,12 @@ struct ProgramDetailView: View {
                 VStack(spacing: 16) {
                     ZStack {
                         Circle()
-                            .fill(program.color.opacity(0.15))
+                            .fill(Color.chieacPrimary.opacity(0.15))
                             .frame(width: 100, height: 100)
                         
                         Image(systemName: program.icon)
                             .font(.system(size: 40))
-                            .foregroundColor(program.color)
+                            .foregroundColor(.chieacPrimary)
                     }
                     
                     Text(program.title)
@@ -33,7 +33,7 @@ struct ProgramDetailView: View {
                     
                     Text(program.subtitle)
                         .font(.title2)
-                        .foregroundColor(program.color)
+                        .foregroundColor(.chieacPrimary)
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 20)
@@ -83,7 +83,7 @@ struct ProgramDetailView: View {
                             ForEach(program.impact, id: \.self) { impact in
                                 HStack(alignment: .top, spacing: 12) {
                                     Image(systemName: "star.fill")
-                                        .foregroundColor(program.color)
+                                        .foregroundColor(.chieacPrimary)
                                         .font(.system(size: 16))
                                     
                                     Text(impact)
@@ -124,7 +124,7 @@ struct ProgramDetailView: View {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(
                             LinearGradient(
-                                gradient: Gradient(colors: [program.color, program.color.opacity(0.8)]),
+                                gradient: Gradient(colors: [Color.chieacPrimary, Color.chieacPrimary.opacity(0.8)]),
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )

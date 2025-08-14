@@ -1,4 +1,3 @@
-
 //
 //  AppData.swift
 //  ChiEAC
@@ -29,12 +28,7 @@ struct ProgramInfo: Identifiable, Codable {
     let benefits: [String]
     let impact: [String]
     let icon: String
-    let colorHex: String
     let contactEmail: String
-    
-    var color: Color {
-        Color(hex: colorHex)
-    }
 }
 
 // ProgramData - No longer needed as data comes from Firebase
@@ -164,7 +158,7 @@ struct OrganizationInfo: Codable, Identifiable {
 }
 
 // MARK: - Articles
-struct Article: Identifiable, Codable {
+struct Article: Identifiable, Codable, Equatable {
     var id: String?
     let title: String
     let mediumLink: String

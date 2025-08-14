@@ -11,16 +11,12 @@ struct ArticlesView: View {
     let articles: [Article]
     @State private var selectedTags: Set<String> = []
     @State private var presentingArticle: Article?
+    @State private var showingFilter: Bool = false
+    // Adjustable offset so popup aligns approximately with first article card top
+    private let filterPopupTopOffset: CGFloat = 60 // refined to align with first ArticlePageCard
     
-    private let allTags: [String] = [
-        "Mental Health",
-        "Social Justice",
-        "Education Equity",
-        "Immigration & Community",
-        "Identity & Culture",
-        "Higher Ed Life",
-        "Economic Justice"
-    ]
+    // Dynamically derive all tags from current articles (see Utils/ArticleTags.swift)
+    private var allTags: [String] { articles.allArticleTags() }
     
     private var filtered: [Article] {
         guard !selectedTags.isEmpty else { return articles }
@@ -35,41 +31,11 @@ struct ArticlesView: View {
             List {
                 Section {
                     // Header title + tag chips
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Articles")
                             .font(.chieacAppTitle)
                             .foregroundColor(.chieacTextPrimary)
                             .padding(.top, 2)
-
-                        // Chip tray card (styled like TeamCard edges)
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(allTags, id: \.self) { tag in
-                                    TagChip(tag: tag, isSelected: selectedTags.contains(tag)) {
-                                        if selectedTags.contains(tag) { selectedTags.remove(tag) } else { selectedTags.insert(tag) }
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .padding(.trailing, 16) // keep last chip from touching rounded border
-                        }
-                        // Clip only the scrollable content to avoid chips overflowing
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        // TeamCard edge styling
-                        .background(Color.white)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.chieacMintGreen.opacity(0.6), lineWidth: 1)
-                        )
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.chieacCardGreen)
-                        )
-                        .cornerRadius(16)
-                        .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
-
-                        // No divider to keep sections visually connected
                     }
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 6, trailing: 16))
@@ -99,37 +65,72 @@ struct ArticlesView: View {
         .sheet(item: $presentingArticle) { article in
             ExternalLinkWebView(urlString: article.mediumLink, title: "Article")
         }
-    }
-}
-
-private struct TagChip: View {
-    let tag: String
-    let isSelected: Bool
-    let onTap: () -> Void
-    
-    var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 6) {
-                Text(tag)
-                    .font(.caption.weight(.semibold))
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .minimumScaleFactor(0.85)
+        // Modern onChange API (iOS 17+) using two-parameter closure; fallback to legacy for earlier OS versions.
+        .modifier(ArticlesTagsChangeModifier(articles: articles, selectedTags: $selectedTags, allTagsProvider: { allTags }))
+        // Filter popup overlay
+        .overlay(alignment: .top) {
+            if showingFilter {
+                ArticlesFilterPopupCard(
+                    tags: allTags,
+                    selection: $selectedTags,
+                    topOffset: filterPopupTopOffset,
+                    dismiss: { showingFilter = false }
+                )
+                .zIndex(10)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 15)
-                    .fill(isSelected ? Color.chieacPrimary.opacity(0.15) : Color(UIColor.systemGray6))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 15)
-                    .stroke(isSelected ? Color.chieacPrimary : Color(UIColor.systemGray4), lineWidth: 0)
-            )
-            .foregroundColor(isSelected ? .chieacPrimary : .chieacTextPrimary)
+        }
+        .toolbar { // Persistent filter access while scrolling
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { showingFilter = true }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text("Filter")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule().fill(Color.chieacPrimary.opacity(0.15))
+                    )
+                    .foregroundColor(.chieacPrimary)
+                    // Preserve tap target ~44pt height via invisible expansion
+                    .contentShape(Rectangle())
+                }
+                .padding(.vertical, 4) // slight extra outer padding for tap area
+                .accessibilityIdentifier("articlesFilterButton")
+            }
         }
     }
 }
+
+// MARK: - Change Modifier (handles iOS 17 deprecation of old onChange signature)
+private struct ArticlesTagsChangeModifier: ViewModifier {
+    let articles: [Article]
+    @Binding var selectedTags: Set<String>
+    let allTagsProvider: () -> [String]
+
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            content.onChange(of: articles) { oldValue, newValue in
+                pruneSelections(using: newValue)
+            }
+        } else {
+            content.onChange(of: articles) { _ in
+                pruneSelections(using: articles)
+            }
+        }
+    }
+
+    private func pruneSelections(using current: [Article]) {
+        let valid = Set(allTagsProvider())
+        if !selectedTags.isSubset(of: valid) {
+            selectedTags = selectedTags.intersection(valid)
+        }
+    }
+}
+
+// (Filter popup extracted to Components/ArticlesFilterPopupCard.swift)
 
 struct ArticlesView_Previews: PreviewProvider {
     static var previews: some View {
