@@ -16,7 +16,8 @@ struct ArticlesView: View {
     private let filterPopupTopOffset: CGFloat = 60 // refined to align with first ArticlePageCard
     
     // Dynamically derive all tags from current articles (see Utils/ArticleTags.swift)
-    private var allTags: [String] { articles.allArticleTags() }
+    // Only include tags that appear in at least 6 articles ( >5 )
+    private var allTags: [String] { articles.allArticleTags(minimumFrequency: 5) }
     
     private var filtered: [Article] {
         guard !selectedTags.isEmpty else { return articles }
@@ -135,7 +136,7 @@ private struct ArticlesTagsChangeModifier: ViewModifier {
 struct ArticlesView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            let mock = [Article(id: nil, title: "Sample", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Mock"]) ]
+            let mock = [Article(id: nil, title: "Sample", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Mock"], publishedAt: Date()) ]
             ArticlesView(articles: mock)
         }
     }

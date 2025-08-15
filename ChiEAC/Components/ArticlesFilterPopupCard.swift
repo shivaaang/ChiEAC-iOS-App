@@ -15,6 +15,8 @@ struct ArticlesFilterPopupCard: View {
 
     @State private var tempSelection: Set<String> = []
     @State private var showDismissAlert = false
+    @State private var showCard: Bool = false
+    // (Removed chevron / sentinel logic per request)
 
     private var hasChanges: Bool { tempSelection != selection }
 
@@ -31,17 +33,30 @@ struct ArticlesFilterPopupCard: View {
             }
             .padding(16)
             .background(
+                // Frosted / material style with brand light background tint
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.chieacCardBackground)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(Color.chieacLightBackground.opacity(0.65))
+                    )
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .stroke(Color.chieacMintGreen.opacity(0.55), lineWidth: 1)
             )
-            .shadow(color: .black.opacity(0.15), radius: 14, x: 0, y: 6)
+            // Layered shadows for subtle depth
+            .shadow(color: .black.opacity(0.10), radius: 16, x: 0, y: 10)
+            .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+            .scaleEffect(showCard ? 1 : 0.94)
+            .opacity(showCard ? 1 : 0)
+            .animation(.spring(response: 0.38, dampingFraction: 0.82), value: showCard)
             .padding(.horizontal, 16)
             .padding(.top, topOffset)
-            .onAppear { tempSelection = selection }
+            .onAppear {
+                tempSelection = selection
+                showCard = true
+            }
         }
         .accessibilityIdentifier("articlesFilterPopup")
         .alert("Apply selected filters?", isPresented: $showDismissAlert) {
@@ -62,8 +77,19 @@ struct ArticlesFilterPopupCard: View {
             Spacer(minLength: 8)
             Group {
                 if hasChanges {
-                    Button("Apply") { commitAndDismiss() }
-                        .font(.callout.weight(.semibold))
+                    Button(action: { commitAndDismiss() }) {
+                        HStack(spacing: 6) {
+                            Text("Apply")
+                            if !tempSelection.isEmpty {
+                                Text("\(tempSelection.count)")
+                                    .font(.caption.weight(.bold))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Capsule().fill(Color.white.opacity(0.18)))
+                            }
+                        }
+                    }
+                    .font(.callout.weight(.semibold))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 6)
                         .frame(height: controlHeight)
@@ -87,6 +113,8 @@ struct ArticlesFilterPopupCard: View {
         .frame(minHeight: controlHeight) // ensure row keeps height baseline
     }
 
+    // Search removed: use provided ordering (frequency-sorted upstream) directly
+
     @ViewBuilder
     private var content: some View {
         if tags.isEmpty {
@@ -96,6 +124,9 @@ struct ArticlesFilterPopupCard: View {
                 .padding(.vertical, 12)
         } else {
             let needsScroll = tags.count > 14
+        // Adaptive max height: show more tags before scrolling when many exist.
+        // 55% of screen height (capped) keeps popup balanced below the header.
+            let adaptiveMaxHeight = min(UIScreen.main.bounds.height * 0.45, 420)
             Group {
                 if needsScroll {
                     ScrollView(showsIndicators: false) {
@@ -104,23 +135,27 @@ struct ArticlesFilterPopupCard: View {
                         }
                         .padding(.top, 2)
                         .padding(.horizontal, 2)
+                        .padding(.bottom, 10)
                     }
-                    .frame(maxHeight: 260)
+                    .frame(maxHeight: adaptiveMaxHeight)
                 } else {
                     TagFlowLayout(spacing: 8, lineSpacing: 10) {
                         tagPills
                     }
                     .padding(.top, 2)
                     .padding(.horizontal, 2)
+                    .padding(.bottom, 4)
                 }
             }
         }
     }
 
     private var tagPills: some View {
-        ForEach(tags, id: \.self) { tag in
+    ForEach(tags, id: \.self) { tag in
             TagTogglePill(tag: tag, isSelected: tempSelection.contains(tag)) {
-                if tempSelection.contains(tag) { tempSelection.remove(tag) } else { tempSelection.insert(tag) }
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                    if tempSelection.contains(tag) { tempSelection.remove(tag) } else { tempSelection.insert(tag) }
+                }
             }
         }
     }
@@ -163,15 +198,20 @@ private struct TagTogglePill: View {
             Text(tag)
                 .font(.caption.weight(.semibold))
                 .lineLimit(1)
-                .foregroundColor(.chieacTextPrimary)
+                .foregroundColor(isSelected ? .white : .chieacTextPrimary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 6)
                 .background(
-                    Capsule().fill(isSelected ? Color.chieacPrimary.opacity(0.22) : Color(hex: "#e1e4e8"))
+                    Capsule().fill(
+                        isSelected ? AnyShapeStyle(LinearGradient(colors: [Color.chieacPrimary, Color.chieacSecondary.opacity(0.85)], startPoint: .topLeading, endPoint: .bottomTrailing)) : AnyShapeStyle(Color(hex: "#e1e4e8"))
+                    )
                 )
                 .overlay(
                     Capsule().stroke(isSelected ? Color.chieacPrimary : Color.chieacPrimary.opacity(0.12), lineWidth: isSelected ? 1 : 0.75)
                 )
+                .shadow(color: isSelected ? Color.chieacPrimary.opacity(0.25) : .clear, radius: 6, x: 0, y: 2)
+                .scaleEffect(isSelected ? 1.03 : 1.0)
+                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isSelected)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("filterTag_\(tag)")
@@ -219,6 +259,10 @@ private struct TagFlowLayout: Layout {
         }
     }
 }
+
+// (Removed old gradient scroll hint; replaced with compact scroll-to-bottom button.)
+
+// (Removed preference keys and chevron-related types.)
 
 #if DEBUG
 struct ArticlesFilterPopupCard_Previews: PreviewProvider {

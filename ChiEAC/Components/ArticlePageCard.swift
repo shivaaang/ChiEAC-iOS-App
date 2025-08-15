@@ -6,28 +6,39 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct ArticlePageCard: View {
     let article: Article
-    
+    // Fixed card sizing
+    private static let cardHeight: CGFloat = 140
+    private static let verticalPadding: CGFloat = 15
+    // Image width kept consistent with prior design
+    private static let imageWidth: CGFloat = 132
+
     var body: some View {
-        HStack(spacing: 12) {
+        let contentHeight = Self.cardHeight - (Self.verticalPadding * 2)
+        HStack(alignment: .top, spacing: 8) {
             VStack(alignment: .leading, spacing: 6) {
-                // Title at top-left
                 Text(article.title)
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundColor(.chieacTextPrimary)
                     .lineLimit(3)
+//                    .lineSpacing()
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                Spacer(minLength: 4)
-
-                // Tags anchored to bottom-left
-                TagWrap(tags: article.articleTags)
+                if let date = article.publishedAt {
+                    Text(relativeDateString(for: date))
+                        .font(.caption) // already dynamic
+                        .foregroundColor(.chieacTextSecondary)
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 4) // keep minimal gap before tags
+                SingleLineTagRow(tags: article.articleTags)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .frame(height: contentHeight, alignment: .top)
 
-            // Right image (wider by ~50%)
             AsyncImage(url: URL(string: article.imageLink)) { phase in
                 switch phase {
                 case .empty:
@@ -40,11 +51,12 @@ struct ArticlePageCard: View {
                     Color.gray.opacity(0.2)
                 }
             }
-            .frame(width: 132, height: 100)
+            .frame(width: Self.imageWidth, height: contentHeight)
             .clipped()
             .cornerRadius(16)
         }
-        .padding(20)
+        .padding(Self.verticalPadding)
+        .frame(height: Self.cardHeight, alignment: .topLeading)
         .background(Color.white)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
@@ -59,98 +71,105 @@ struct ArticlePageCard: View {
     }
 }
 
-private struct TagWrap: View {
+// MARK: - Relative Date Helper
+private extension ArticlePageCard {
+    func relativeDateString(for date: Date) -> String {
+        let calendar = Calendar.current
+        let startOfTarget = calendar.startOfDay(for: date)
+        let startOfToday = calendar.startOfDay(for: Date())
+        let days = calendar.dateComponents([.day], from: startOfTarget, to: startOfToday).day ?? 0
+        if days >= 0 && days < 7 {
+            switch days {
+            case 0: return "Today"
+            case 1: return "1 day ago"
+            default: return "\(days) days ago"
+            }
+        }
+        return date.formatted(.dateTime.month(.wide).day().year())
+    }
+}
+
+// MARK: - Single line tag row with +N overflow indicator
+private struct SingleLineTagRow: View {
     let tags: [String]
-    
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            let rows = makeRows(tags: tags, maxRows: 2)
-            ForEach(rows.indices, id: \.self) { idx in
-                HStack(spacing: 4) {
-                    ForEach(rows[idx], id: \.self) { tag in
-                        Text(tag)
-                            .font(.system(size: 9, weight: .semibold))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                            .background(Color(UIColor.systemGray6))
-                            .foregroundColor(.chieacTextSecondary)
-                            .cornerRadius(16)
-                    }
-                }
+        HStack(spacing: 4) {
+            let layout = computeLayout(tags: tags)
+            ForEach(layout.visible, id: \.self) { tag in
+                TagChip(text: tag)
+            }
+            if layout.moreCount > 0 {
+                TagChip(text: "+\(layout.moreCount)")
+                    .foregroundColor(.chieacTextPrimary)
+                    .accessibilityLabel("Plus \(layout.moreCount) more tags")
             }
         }
     }
-    
-    private func makeRows(tags: [String], maxRows: Int) -> [[String]] {
-        // Estimate available width for the left column inside the card based on screen width
-        // card sits in a List row with 16pt insets, and has 14pt internal horizontal padding
-        // right image is 132pt and HStack spacing is 12pt
+
+    private func computeLayout(tags: [String]) -> (visible: [String], moreCount: Int) {
+        guard !tags.isEmpty else { return ([], 0) }
         let screenWidth = UIScreen.main.bounds.width
-        let listInsets: CGFloat = 32 // 16 leading + 16 trailing
-        let cardPadding: CGFloat = 28 // 14 left + 14 right
+        let listInsets: CGFloat = 32 // list row leading+trailing
+        let cardPadding: CGFloat = 30 // internal + fudge
         let imageWidth: CGFloat = 132
         let columnSpacing: CGFloat = 12
         let safety: CGFloat = 6
-        var maxWidth = screenWidth - listInsets - cardPadding - imageWidth - columnSpacing - safety
-        if maxWidth < 0 { maxWidth = 0 }
+    let available = screenWidth - listInsets - cardPadding - imageWidth - columnSpacing - safety
+        if available < 40 { return ([], tags.count) }
+        let spacing: CGFloat = 4
 
-        // Approximate chip width using SwiftUI font metrics; avoid UIKit
-        func chipWidth(for text: String) -> CGFloat {
-            // Base estimate per character with semibold 9pt + padding; tuned to avoid overflow
-            let perChar: CGFloat = 5.3
-            let base = perChar * CGFloat(text.count)
-            return base + 14 // 6+6 padding + small buffer
+        func scaledTagUIFont() -> UIFont {
+            let base = UIFont.systemFont(ofSize: 9, weight: .semibold)
+            return UIFontMetrics(forTextStyle: .caption2).scaledFont(for: base)
         }
 
-        var rows: [[String]] = []
-        var currentRow: [String] = []
-        var currentWidth: CGFloat = 0
-        let interChipSpacing: CGFloat = 4
-
-        for tag in tags {
-            var width = chipWidth(for: tag)
-            // If a single chip is wider than the available width, clamp it to maxWidth
-            if width > maxWidth { width = maxWidth }
-
-            if currentRow.isEmpty {
-                // first chip in the row
-                if width <= maxWidth {
-                    currentRow.append(tag)
-                    currentWidth = width
-                } else {
-                    // fallback: force into its own row
-                    rows.append([tag])
-                    if rows.count >= maxRows { break }
-                    currentRow.removeAll(); currentWidth = 0
-                }
-            } else {
-                if currentWidth + interChipSpacing + width <= maxWidth {
-                    currentRow.append(tag)
-                    currentWidth += interChipSpacing + width
-                } else {
-                    rows.append(currentRow)
-                    if rows.count >= maxRows { break }
-                    currentRow = [tag]
-                    currentWidth = width
-                }
-            }
+        let tagFont = scaledTagUIFont()
+        func chipWidth(_ text: String) -> CGFloat {
+            let attributes = [NSAttributedString.Key.font: tagFont]
+            let size = (text as NSString).size(withAttributes: attributes)
+            return size.width + 12 + 2 // horizontal padding + fudge
         }
 
-        if rows.count < maxRows && !currentRow.isEmpty {
-            rows.append(currentRow)
+        var visible: [String] = []
+        var used: CGFloat = 0
+        for (i, tag) in tags.enumerated() {
+            let w = chipWidth(tag)
+            let add = visible.isEmpty ? w : (spacing + w)
+            let remainingTags = tags.count - (i + 1)
+            let reserve = remainingTags > 0 ? (spacing + chipWidth("+\(remainingTags)")) : 0
+            if used + add + reserve <= available {
+                visible.append(tag)
+                used += add
+            } else { break }
         }
+        let more = tags.count - visible.count
+        return (visible, max(0, more))
+    }
+}
 
-        return rows
+private struct TagChip: View {
+    let text: String
+    var body: some View {
+        Text(text)
+            .font(.caption2)
+            .lineLimit(1)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2.5) // slightly tighter to keep chip compact as it scales
+            .background(Color(UIColor.systemGray6))
+            .foregroundColor(.chieacTextSecondary)
+            .cornerRadius(16)
     }
 }
 
 struct ArticlePageCard_Previews: PreviewProvider {
     static var previews: some View {
         List {
-            let mock = Article(id: nil, title: "Sample", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Mock"]) 
+            let mock = Article(id: nil, title: "Sample Long Title That Potentially Spans Multiple Lines To Test Layout Wrapping", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Education", "Community", "Advocacy", "Equity", "Youth"], publishedAt: Date())
             ArticlePageCard(article: mock)
         }
     }
 }
+
+// Removed dynamic height measurement; fixed card height restored.

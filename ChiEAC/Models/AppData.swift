@@ -218,13 +218,69 @@ struct Article: Identifiable, Codable, Equatable {
     let mediumLink: String
     let imageLink: String
     let articleTags: [String]
+    let publishedAt: Date?
     
     enum CodingKeys: String, CodingKey {
         case title
         case mediumLink = "medium_link"
         case imageLink = "image_link"
         case articleTags = "article_tags"
+        case publishedAt = "published_at"
     }
+
+    // Custom decoding to parse ISO8601 date without altering global decoder setup
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.title = (try? c.decode(String.self, forKey: .title)) ?? ""
+        self.mediumLink = (try? c.decode(String.self, forKey: .mediumLink)) ?? ""
+        self.imageLink = (try? c.decode(String.self, forKey: .imageLink)) ?? ""
+        self.articleTags = (try? c.decode([String].self, forKey: .articleTags)) ?? []
+        if let dateString = try? c.decode(String.self, forKey: .publishedAt) {
+            self.publishedAt = Article.iso8601Formatter.date(from: dateString) ?? Article.fallbackFormatter.date(from: dateString)
+        } else {
+            self.publishedAt = nil
+        }
+        // id is optional / not present in CodingKeys; rely on synthesized id if provided externally
+        // Attempt to extract id from top-level keyed container if exists under "id"
+        if let rawId = (try? decoder.singleValueContainer().decode(String.self)) { // unlikely path
+            self.id = rawId
+        } else if let idAny = try? decoder.container(keyedBy: DynamicCodingKeys.self) { // search for "id"
+            self.id = try? idAny.decodeIfPresent(String.self, forKey: DynamicCodingKeys(stringValue: "id")!)
+        } else {
+            self.id = nil
+        }
+    }
+
+    // Convenience memberwise initializer for previews / manual construction
+    init(id: String? = nil, title: String, mediumLink: String, imageLink: String, articleTags: [String], publishedAt: Date? = nil) {
+        self.id = id
+        self.title = title
+        self.mediumLink = mediumLink
+        self.imageLink = imageLink
+        self.articleTags = articleTags
+        self.publishedAt = publishedAt
+    }
+
+    private struct DynamicCodingKeys: CodingKey {
+        var stringValue: String
+        init?(stringValue: String) { self.stringValue = stringValue }
+        var intValue: Int? { nil }
+        init?(intValue: Int) { return nil }
+    }
+    
+    // Date formatters
+    private static let iso8601Formatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXXXX" // handles Z / offset
+        return f
+    }()
+    private static let fallbackFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM-dd" // fallback simple date
+        return f
+    }()
 }
 
 
