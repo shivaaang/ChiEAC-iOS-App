@@ -8,58 +8,86 @@
 import SwiftUI
 
 struct SupportMissionView: View {
+    @StateObject private var viewModel = SupportMissionViewModel()
     @State private var showDonationView = false
-    @State private var donationURL: String? = nil
     @State private var callToActionTop: CGFloat = .greatestFiniteMagnitude
     @State private var containerBottom: CGFloat = 0
-    @State private var content: SupportMissionContent? = nil
     
     var body: some View {
         GeometryReader { outer in
             ZStack(alignment: .bottom) {
-                ScrollView {
-                    VStack(spacing: 15) {
-                        // Header Section
-                        SupportMissionHeaderSection(title: content?.headerTitle)
+                if viewModel.isLoading && !viewModel.hasData {
+                    // Loading state
+                    VStack(spacing: 20) {
+                        SupportMissionHeaderSection(title: nil)
                         
-                        // Mission Statement
-                        if let c = content { MissionStatementSection(copy: c.mission) }
-                        
-                        // Impact Numbers
-                        if let c = content { ImpactNumbersSection(stats: c.impactNumbers) }
-                        
-                        // What Your Gift Provides
-                        if let c = content { DonationImpactSection(heading: c.donationLevelsHeading, levels: c.donationLevels) }
-                        
-                        // Long-term Solutions
-                        if let c = content { LongTermSolutionsSection(section: c.longTermSolutions) }
-                        
-                        // Why ChiEAC
-                        if let c = content { WhyChiEACSection(section: c.whyChiEAC) }
-                        
-                        // Call to Action (tracked for visibility)
-                        if let c = content {
-                            CallToActionSection(showDonationView: $showDonationView, isEnabled: donationURL != nil, cta: c.cta)
-                                .background(
-                                    GeometryReader { geo in
-                                        Color.clear
-                                            .preference(key: CallToActionTopKey.self, value: geo.frame(in: .global).minY)
-                                    }
-                                )
+                        VStack(spacing: 16) {
+                            ProgressView()
+                                .scaleEffect(1.2)
+                            Text("Loading content...")
+                                .font(.chieacBody)
+                                .foregroundColor(.chieacTextSecondary)
                         }
+                        .frame(height: 200)
                         
-                        Spacer(minLength: 20)
+                        Spacer()
                     }
                     .padding(.horizontal, 20)
-                    .onAppear {
-                        containerBottom = outer.frame(in: .global).maxY
+                } else {
+                    ScrollView {
+                        VStack(spacing: 15) {
+                            // Header Section
+                            SupportMissionHeaderSection(title: viewModel.supportMissionContent?.headerTitle)
+                            
+                            // Mission Statement
+                            if let content = viewModel.supportMissionContent { 
+                                MissionStatementSection(copy: content.mission) 
+                            }
+                            
+                            // Impact Numbers
+                            if let content = viewModel.supportMissionContent { 
+                                ImpactNumbersSection(stats: content.impactNumbers) 
+                            }
+                            
+                            // What Your Gift Provides
+                            if let content = viewModel.supportMissionContent { 
+                                DonationImpactSection(heading: content.donationLevelsHeading, levels: content.donationLevels) 
+                            }
+                            
+                            // Long-term Solutions
+                            if let content = viewModel.supportMissionContent { 
+                                LongTermSolutionsSection(section: content.longTermSolutions) 
+                            }
+                            
+                            // Why ChiEAC
+                            if let content = viewModel.supportMissionContent { 
+                                WhyChiEACSection(section: content.whyChiEAC) 
+                            }
+                            
+                            // Call to Action (tracked for visibility)
+                            if let content = viewModel.supportMissionContent {
+                                CallToActionSection(showDonationView: $showDonationView, isEnabled: viewModel.donationURL != nil, cta: content.cta)
+                                    .background(
+                                        GeometryReader { geo in
+                                            Color.clear
+                                                .preference(key: CallToActionTopKey.self, value: geo.frame(in: .global).minY)
+                                        }
+                                    )
+                            }
+                            
+                            Spacer(minLength: 20)
+                        }
+                        .padding(.horizontal, 20)
+                        .onAppear {
+                            containerBottom = outer.frame(in: .global).maxY
+                        }
                     }
                 }
                 
                 // Floating Donate Button
                 if shouldShowFloatingButton(globalVisibleBottom: outer.frame(in: .global).maxY) {
-                    FloatingDonateButton(isEnabled: donationURL != nil) {
-                        if donationURL != nil { showDonationView = true }
+                    FloatingDonateButton(isEnabled: viewModel.donationURL != nil) {
+                        if viewModel.donationURL != nil { showDonationView = true }
                     }
                     .padding(.bottom, 12)
                     .padding(.horizontal, 24)
@@ -74,22 +102,27 @@ struct SupportMissionView: View {
         .navigationTitle("Support Our Mission")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showDonationView) {
-            if let url = donationURL {
+            if let url = viewModel.donationURL {
                 ExternalLinkWebView(urlString: url, title: "Donate to ChiEAC")
             } else {
                 Text("Missing donation link.")
                     .padding()
             }
         }
-        .onAppear {
-            // Load donation URL from fixtures via repository ASAP on appear
-            if donationURL == nil {
-                let links = LocalRepository.shared.loadExternalLinks()
-                donationURL = links.first(where: { $0.name.lowercased() == "donation" })?.address
+        .alert("Error Loading Content", isPresented: .constant(viewModel.hasError)) {
+            Button("Retry") {
+                viewModel.retry()
             }
-            if content == nil {
-                content = LocalRepository.shared.loadSupportMissionContent()
-            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage)
+        }
+        .refreshable {
+            viewModel.retry()
+        }
+        .task {
+            // Ensure data is loaded if needed (fallback)
+            await viewModel.loadDataIfNeeded()
         }
     }
     
@@ -194,7 +227,9 @@ struct ImpactNumbersSection: View {
     let stats: [ImpactNumberContent]
     
     private var mapped: [ImpactStat] {
-        stats.map { ImpactStat(id: "supportImpact." + $0.id, number: $0.number, label: $0.label, subtitle: $0.subtitle, icon: $0.icon) }
+        stats.enumerated().map { index, stat in 
+            ImpactStat(id: "supportImpact." + stat.id, number: stat.number, label: stat.label, subtitle: stat.subtitle, icon: stat.icon, order: index)
+        }
     }
     
     var body: some View {

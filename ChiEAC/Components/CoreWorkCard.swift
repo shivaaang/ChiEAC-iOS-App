@@ -71,7 +71,8 @@ struct CoreWorkCard_Previews: PreviewProvider {
             id: "core_work.preview.advocacy",
             title: "Advocacy",
             description: "We advocate for policies that address root causes of educational inequity and create a more just and equitable school system.",
-            icon: "scale.3d"
+            icon: "scale.3d",
+            order: 1
         ))
         .padding()
         .previewLayout(.sizeThatFits)

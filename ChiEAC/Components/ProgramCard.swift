@@ -83,13 +83,15 @@ struct ProgramCard: View {
 struct ProgramCard_Previews: PreviewProvider {
     static var previews: some View {
     ProgramCard(program: ProgramInfo(
+            id: "sample_elevate",
             title: "ELEVATE",
             subtitle: "Professional Development",
             description: "Custom professional development opportunities tailored to the unique needs and aspirations of rising scholars.",
             benefits: ["85 custom internships created since 2020", "90%+ participants gain career-relevant skills"],
             impact: ["Rising scholars connected with opportunities"],
             icon: "star.fill",
-            contactEmail: "elevate@chieac.org"
+            contactEmail: "elevate@chieac.org",
+            order: 1
         ))
         .padding()
         .previewLayout(.sizeThatFits)

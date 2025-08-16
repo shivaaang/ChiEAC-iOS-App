@@ -42,7 +42,7 @@ struct ImpactStatCard: View {
 
 struct ImpactStatCard_Previews: PreviewProvider {
     static var previews: some View {
-    ImpactStatCard(stat: ImpactStat(id: "impact.preview.students_served", number: "1,600+", label: "Students Served", subtitle: "since 2020", icon: "graduationcap.fill"))
+    ImpactStatCard(stat: ImpactStat(id: "impact.preview.students_served", number: "1,600+", label: "Students Served", subtitle: "since 2020", icon: "graduationcap.fill", order: 1))
             .padding()
             .previewLayout(.sizeThatFits)
     }

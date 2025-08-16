@@ -1,17 +1,17 @@
 //
-//  ProgramsViewModel.swift
+//  SupportMissionViewModel.swift
 //  ChiEAC
 //
-//  Created by Shivaang Kumar on 8/9/25.
+//  Created by Shivaang Kumar on 8/15/25.
 //
 
 import Foundation
 import SwiftUI
 import Combine
 
-// MARK: - Programs ViewModel
+// MARK: - Support Mission ViewModel
 @MainActor
-class ProgramsViewModel: ObservableObject {
+class SupportMissionViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var error: Error?
     
@@ -19,7 +19,13 @@ class ProgramsViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
-    var programs: [ProgramInfo] { appDataManager.programs }
+    var supportMissionContent: SupportMissionContent? { 
+        appDataManager.supportMissionContent 
+    }
+    
+    var donationURL: String? {
+        appDataManager.externalLinks.first(where: { $0.name.lowercased() == "donation" })?.address
+    }
     
     var hasError: Bool {
         error != nil || appDataManager.error != nil
@@ -30,16 +36,17 @@ class ProgramsViewModel: ObservableObject {
     }
     
     var isLoading: Bool {
-        appDataManager.shouldShowLoading
+        appDataManager.shouldShowLoading && supportMissionContent == nil
     }
     
-    var hasDataLoaded: Bool {
-        !appDataManager.programs.isEmpty
+    var hasData: Bool {
+        supportMissionContent != nil
     }
     
     // MARK: - Initialization
     init() {
-        // No need to load data here - AppDataManager handles it
+        // Data should already be loading/loaded via AppDataManager
+        // No need to trigger additional loads
         
         // Observe AppDataManager changes to trigger UI updates
         appDataManager.objectWillChange
@@ -57,29 +64,27 @@ class ProgramsViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Helper Methods
-    func program(for id: String) -> ProgramInfo? {
-        programs.first { $0.id == id }
-    }
-    
-    var featuredPrograms: [ProgramInfo] {
-        // Could implement featured logic here
-        programs
+    func loadDataIfNeeded() async {
+        // Ensure data is loaded if not already available
+        await appDataManager.initializeApp()
     }
 }
 
-// MARK: - Custom Errors
-enum ProgramsError: LocalizedError {
+// MARK: - Support Mission Specific Errors
+enum SupportMissionError: LocalizedError {
+    case contentLoadFailed
+    case externalLinksLoadFailed
     case networkUnavailable
-    case dataCorrupted
     case unknown
     
     var errorDescription: String? {
         switch self {
+        case .contentLoadFailed:
+            return "Unable to load support mission content. Please try again."
+        case .externalLinksLoadFailed:
+            return "Unable to load donation link. Please try again."
         case .networkUnavailable:
             return "Network connection unavailable. Please check your internet connection."
-        case .dataCorrupted:
-            return "Unable to load program data. Please try again."
         case .unknown:
             return "An unexpected error occurred. Please try again."
         }

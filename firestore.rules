@@ -1,0 +1,68 @@
+// Firestore Security Rules for ChiEAC App
+// Copy and paste these rules into Firebase Console -> Firestore Database -> Rules
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Organization Info - Read only for all users
+    match /organization_info/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only admins should write via console
+    }
+    
+    // Programs - Read only for all users  
+    match /programs/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only admins should write via console
+    }
+    
+    // Teams - Read only for all users
+    match /teams/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only admins should write via console
+    }
+    
+    // Team Members - Read only for all users
+    match /team_members/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only admins should write via console
+    }
+    
+    // Articles - Read only for all users
+    match /articles/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only admins should write via console
+    }
+    
+    // Impact Stats - Read only for all users
+    match /impact_stats/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only admins should write via console
+    }
+    
+    // Core Work - Read only for all users
+    match /core_work/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only admins should write via console
+    }
+    
+    // Support Mission - Read only for all users
+    match /support_mission/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only admins should write via console
+    }
+    
+    // External Links - Read only for all users
+    match /external_links/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only admins should write via console
+    }
+    
+    // Deny all other operations
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -64,23 +64,32 @@ private struct AvatarBubble: View {
     let name: String
     
     var body: some View {
-        ZStack {
-            Circle()
-                .fill(Color.chieacSecondary)
-                .frame(width: 32, height: 32)
-            if let imageURL, let url = URL(string: imageURL) {
-                AsyncImage(url: url) { image in
-                    image.resizable().scaledToFill()
-                } placeholder: {
-                    ProgressView().scaleEffect(0.6)
+        // Only show something if we have a valid image URL
+        if let imageURL, !imageURL.isEmpty, let url = URL(string: imageURL) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .success(let image):
+                    // Only show circle with image if it loaded successfully
+                    ZStack {
+                        Circle()
+                            .fill(Color.chieacSecondary)
+                            .frame(width: 32, height: 32)
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 32, height: 32)
+                            .clipShape(Circle())
+                    }
+                case .empty, .failure(_):
+                    // Don't show anything if image is loading or failed
+                    EmptyView()
+                @unknown default:
+                    EmptyView()
                 }
-                .frame(width: 32, height: 32)
-                .clipShape(Circle())
-            } else {
-                Text(initials(name))
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.white)
             }
+        } else {
+            // No image URL - don't show anything
+            EmptyView()
         }
     }
     
@@ -92,10 +101,10 @@ private struct AvatarBubble: View {
 
 struct TeamCard_Previews: PreviewProvider {
     static var previews: some View {
-        let team = Team(id: "team.core_team", name: "Core Team", code: .coreTeam, description: "Meet the exceptionally dedicated team of educators...")
+        let team = Team(id: "team.core_team", name: "Core Team", code: .coreTeam, description: "Meet the exceptionally dedicated team of educators...", order: 1)
         let members: [TeamMember] = [
-            TeamMember(id: "m1", name: "Jane Doe", title: "Role", bio: "bio", team: .coreTeam, imageURL: nil),
-            TeamMember(id: "m2", name: "John Doe", title: "Role", bio: "bio", team: .coreTeam, imageURL: nil)
+            TeamMember(id: "m1", name: "Jane Doe", title: "Role", bio: "bio", bioShort: nil, team: .coreTeam, imageURL: nil, order: 1),
+            TeamMember(id: "m2", name: "John Doe", title: "Role", bio: "bio", bioShort: nil, team: .coreTeam, imageURL: nil, order: 2)
         ]
         TeamCard(team: team, members: members)
             .padding()

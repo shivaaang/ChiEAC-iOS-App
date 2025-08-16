@@ -12,7 +12,7 @@ struct ArticleHomeCard: View {
     
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            AsyncImage(url: URL(string: article.imageLink)) { phase in
+            RefreshableAsyncImageWithPhase(url: URL(string: article.imageLink)) { phase in
                 switch phase {
                 case .empty:
                     Color.gray.opacity(0.15).overlay(ProgressView())
@@ -51,7 +51,7 @@ struct ArticleHomeCard: View {
 
 struct ArticleHomeCard_Previews: PreviewProvider {
     static var previews: some View {
-    let mock = Article(id: nil, title: "Sample", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Mock"], publishedAt: Date()) 
+    let mock = Article(id: "sample_home", title: "Sample", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Mock"], publishedAt: Date()) 
     ArticleHomeCard(article: mock)
             .padding()
             .previewLayout(.sizeThatFits)

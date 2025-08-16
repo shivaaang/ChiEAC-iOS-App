@@ -166,7 +166,7 @@ private struct TagChip: View {
 struct ArticlePageCard_Previews: PreviewProvider {
     static var previews: some View {
         List {
-            let mock = Article(id: nil, title: "Sample Long Title That Potentially Spans Multiple Lines To Test Layout Wrapping", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Education", "Community", "Advocacy", "Equity", "Youth"], publishedAt: Date())
+            let mock = Article(id: "sample_long_title", title: "Sample Long Title That Potentially Spans Multiple Lines To Test Layout Wrapping", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Education", "Community", "Advocacy", "Equity", "Youth"], publishedAt: Date())
             ArticlePageCard(article: mock)
         }
     }

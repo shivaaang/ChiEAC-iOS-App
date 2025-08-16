@@ -13,85 +13,51 @@ import Combine
 @MainActor
 class HomeViewModel: ObservableObject {
     // MARK: - Published Properties
-    @Published var coreWork: [CoreWork] = []
-    @Published var impactStats: [ImpactStat] = []
-    @Published var organizationData: OrganizationInfo? // Can be nil before loading
-    @Published var articles: [Article] = []
-    
     @Published var error: Error?
     
-    // MARK: - Loading States
-    @Published var isLoadingCoreWork = false
-    @Published var isLoadingImpactStats = false
-    @Published var isLoadingOrganizationData = false
+    private let appDataManager = AppDataManager.shared
+    private var cancellables = Set<AnyCancellable>()
     
-    private let repository: DataRepository
-
     // MARK: - Computed Properties
+    var coreWork: [CoreWork] { appDataManager.coreWork }
+    var impactStats: [ImpactStat] { appDataManager.impactStats }
+    var organizationData: OrganizationInfo? { appDataManager.organizationData }
+    var articles: [Article] { appDataManager.articles }
+    
     var hasError: Bool {
-        error != nil
+        error != nil || appDataManager.error != nil
     }
     
     var errorMessage: String {
-        error?.localizedDescription ?? "An unknown error occurred"
+        error?.localizedDescription ?? appDataManager.error?.localizedDescription ?? "An unknown error occurred"
     }
     
     var isAnyContentLoading: Bool {
-        isLoadingCoreWork || isLoadingImpactStats || isLoadingOrganizationData
+        appDataManager.shouldShowLoading
+    }
+    
+    var hasDataLoaded: Bool {
+        appDataManager.hasData
     }
     
     // MARK: - Initialization
-    init(repository: DataRepository = LocalRepository.shared) {
-        self.repository = repository
-        listenForAllData()
-    }
-    
-    deinit {
-    // no async tasks to cancel in local mode
+    init() {
+        // No need to load data here - AppDataManager handles it
+        
+        // Observe AppDataManager changes to trigger UI updates
+        appDataManager.objectWillChange
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - Public Methods
-    func listenForAllData() {
-    listenForCoreWork()
-    listenForImpactStats()
-    listenForOrganizationInfo()
-    }
-    
     func retry() {
         error = nil
-        listenForAllData()
-    }
-    
-    // MARK: - Private Listener Methods
-    private func listenForCoreWork() {
-        isLoadingCoreWork = true
-        let items = repository.loadCoreWork()
-        self.coreWork = items
-        self.isLoadingCoreWork = false
-    }
-    
-    private func listenForImpactStats() {
-        isLoadingImpactStats = true
-        let items = repository.loadImpactStats()
-        self.impactStats = items
-        self.isLoadingImpactStats = false
-    }
-    
-    private func listenForOrganizationInfo() {
-        isLoadingOrganizationData = true
-        let info = repository.loadOrganizationInfo()
-        self.organizationData = info
-        self.isLoadingOrganizationData = false
-        self.articles = repository.loadArticles()
-    }
-    
-    // MARK: - Helper Methods
-    func getCoreWorkByTitle(_ title: String) -> CoreWork? {
-        coreWork.first { $0.title == title }
-    }
-    
-    func getImpactStatByLabel(_ label: String) -> ImpactStat? {
-        impactStats.first { $0.label == label }
+        Task {
+            await appDataManager.forceRefreshAllData()
+        }
     }
 }
 

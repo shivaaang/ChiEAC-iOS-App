@@ -136,7 +136,7 @@ private struct ArticlesTagsChangeModifier: ViewModifier {
 struct ArticlesView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            let mock = [Article(id: nil, title: "Sample", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Mock"], publishedAt: Date()) ]
+            let mock = [Article(id: "sample_1", title: "Sample", mediumLink: "https://example.com", imageLink: "https://picsum.photos/400/300", articleTags: ["Mock"], publishedAt: Date()) ]
             ArticlesView(articles: mock)
         }
     }

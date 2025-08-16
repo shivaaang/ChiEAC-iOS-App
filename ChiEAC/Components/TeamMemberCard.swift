@@ -16,7 +16,7 @@ struct TeamMemberCard: View {
     VStack(alignment: .leading, spacing: 16) {
             // Header with avatar and basic info
             HStack(alignment: .top, spacing: 16) {
-                // Avatar (with image support)
+                // Avatar - only show if image is available and loads successfully
                 ZStack {
                     Circle()
                         .fill(LinearGradient(
@@ -26,21 +26,32 @@ struct TeamMemberCard: View {
                         ))
                         .frame(width: 60, height: 60)
                     
-                    if let imageURL = member.imageURL, let url = URL(string: imageURL) {
-                        // Show actual photo if available
-                        AsyncImage(url: url) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .clipShape(Circle())
-                        } placeholder: {
-                            // Show loading indicator while image loads
-                            ProgressView()
-                                .foregroundColor(.white)
+                    if let imageURL = member.imageURL, !imageURL.isEmpty {
+                        // Only show if we have a valid image URL
+                        AsyncImage(url: URL(string: imageURL)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                // Only show the image if it loaded successfully
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .clipShape(Circle())
+                                    .frame(width: 60, height: 60)
+                            case .empty, .failure(_):
+                                // Show initials for loading or failed states
+                                Text(getInitials(from: member.name))
+                                    .font(.chieacCardTitle)
+                                    .foregroundColor(.white)
+                                    .fontWeight(.bold)
+                            @unknown default:
+                                Text(getInitials(from: member.name))
+                                    .font(.chieacCardTitle)
+                                    .foregroundColor(.white)
+                                    .fontWeight(.bold)
+                            }
                         }
-                        .frame(width: 60, height: 60)
                     } else {
-                        // Fallback to initials if no image
+                        // No image URL - show initials
                         Text(getInitials(from: member.name))
                             .font(.chieacCardTitle)
                             .foregroundColor(.white)
@@ -115,7 +126,8 @@ struct TeamMemberCard_Previews: PreviewProvider {
                 bio: "Founded ChiEAC in 2020 with passion for addressing systemic educational inequities.",
                 bioShort: "Founded ChiEAC in 2020…",
                 team: .coreTeam,
-                imageURL: nil
+                imageURL: nil,
+                order: 1
             ),
             onMoreTap: { print("More tapped") },
             onCardTap: { print("Card tapped") }

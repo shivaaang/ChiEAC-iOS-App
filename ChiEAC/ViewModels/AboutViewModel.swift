@@ -13,23 +13,30 @@ import Combine
 @MainActor
 class AboutViewModel: ObservableObject {
     // MARK: - Published Properties
-    @Published var teams: [Team] = []
-    @Published var members: [TeamMember] = []
-    @Published var isLoading = false
     @Published var error: Error?
     
-    private let repository: DataRepository
-
+    private let appDataManager = AppDataManager.shared
+    private var cancellables = Set<AnyCancellable>()
+    
     // MARK: - Computed Properties
+    var teams: [Team] { appDataManager.teams }
+    var members: [TeamMember] { appDataManager.teamMembers }
+    
     var hasError: Bool {
-        error != nil
+        error != nil || appDataManager.error != nil
     }
     
     var errorMessage: String {
-        error?.localizedDescription ?? "An unknown error occurred"
+        error?.localizedDescription ?? appDataManager.error?.localizedDescription ?? "An unknown error occurred"
     }
     
-    var isAnyContentLoading: Bool { isLoading }
+    var isLoading: Bool {
+        appDataManager.shouldShowLoading
+    }
+    
+    var hasDataLoaded: Bool {
+        !appDataManager.teams.isEmpty && !appDataManager.teamMembers.isEmpty
+    }
     
     var coreTeamMembers: [TeamMember] {
         members.filter { $0.team == .coreTeam && !$0.name.isEmpty }
@@ -40,25 +47,23 @@ class AboutViewModel: ObservableObject {
     }
     
     // MARK: - Initialization
-    init(repository: DataRepository = LocalRepository.shared) {
-        self.repository = repository
-    load()
+    init() {
+        // No need to load data here - AppDataManager handles it
+        
+        // Observe AppDataManager changes to trigger UI updates
+        appDataManager.objectWillChange
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
-    
-    deinit {}
     
     // MARK: - Public Methods
-    func load() {
-        isLoading = true
-        error = nil
-        
-        self.teams = repository.loadTeams()
-        self.members = repository.loadTeamMembers()
-        self.isLoading = false
-    }
-    
     func retry() {
-        load()
+        error = nil
+        Task {
+            await appDataManager.forceRefreshAllData()
+        }
     }
     
     // MARK: - Helper Methods

@@ -24,19 +24,19 @@ struct HomeView: View {
                             // Mission Statement
                             MissionSection(
                                 organizationData: orgData,
-                                isLoading: viewModel.isLoadingOrganizationData
+                                isLoading: viewModel.isAnyContentLoading && !viewModel.hasDataLoaded
                             )
                             
                             // Our Core Work (grid)
                             CoreWorkSection(
                                 coreWork: viewModel.coreWork,
-                                isLoading: viewModel.isLoadingCoreWork
+                                isLoading: viewModel.isAnyContentLoading && !viewModel.hasDataLoaded
                             )
                             
                             // Our Impact Stats
                             ImpactStatsSection(
                                 impactStats: viewModel.impactStats,
-                                isLoading: viewModel.isLoadingImpactStats
+                                isLoading: viewModel.isAnyContentLoading && !viewModel.hasDataLoaded
                             )
                             
                             // Articles - horizontally scrollable cards
@@ -185,8 +185,14 @@ struct HeaderSection: View {
         .background(Color.white)
         .onAppear {
             if volunteerURL == nil {
-                let links = LocalRepository.shared.loadExternalLinks()
-                volunteerURL = links.first(where: { $0.name.lowercased() == "volunteer" })?.address
+                Task {
+                    do {
+                        let links = try await FirestoreRepository.shared.loadExternalLinks()
+                        volunteerURL = links.first(where: { $0.name.lowercased() == "volunteer" })?.address
+                    } catch {
+                        print("Error loading external links: \(error)")
+                    }
+                }
             }
         }
     }

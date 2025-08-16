@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import FirebaseFirestore
 
 // MARK: - Support Mission Page Models
 struct SupportMissionContent: Decodable {
@@ -68,6 +69,7 @@ struct CoreWork: Identifiable, Codable {
     let title: String
     let description: String
     let icon: String
+    let order: Int
 }
 
 // CoreWorkData - No longer needed as data comes from Firebase
@@ -75,7 +77,7 @@ struct CoreWork: Identifiable, Codable {
 
 // MARK: - Program Data (Updated Structure)
 struct ProgramInfo: Identifiable, Codable {
-    var id: String?
+    let id: String
     let title: String
     let subtitle: String
     let description: String
@@ -83,6 +85,20 @@ struct ProgramInfo: Identifiable, Codable {
     let impact: [String]
     let icon: String
     let contactEmail: String
+    let order: Int
+
+    // Convenience initializer for testing and local data
+    init(id: String, title: String, subtitle: String, description: String, benefits: [String], impact: [String], icon: String, contactEmail: String, order: Int = 0) {
+        self.id = id
+        self.title = title
+        self.subtitle = subtitle
+        self.description = description
+        self.benefits = benefits
+        self.impact = impact
+        self.icon = icon
+        self.contactEmail = contactEmail
+        self.order = order
+    }
 }
 
 // ProgramData - No longer needed as data comes from Firebase
@@ -117,12 +133,14 @@ struct Team: Identifiable, Codable {
     let name: String
     let code: TeamCode
     let description: String
+    let order: Int
 
     enum CodingKeys: String, CodingKey {
         case id
         case name = "team_name"
         case code = "team_code"
         case description = "team_description"
+        case order
     }
 }
 
@@ -134,6 +152,7 @@ struct TeamMember: Identifiable, Codable {
     let bioShort: String?
     let team: TeamCode
     let imageURL: String?
+    let order: Int
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -143,41 +162,11 @@ struct TeamMember: Identifiable, Codable {
         case bioShort = "member_summary_short"
         case team = "member_team"
         case imageURL = "member_image_link"
+        case order
     }
 
-    // Custom decoding to support deterministic ids and legacy payloads
-    init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        let name = (try? c.decode(String.self, forKey: .name)) ?? ""
-        let title = (try? c.decode(String.self, forKey: .title)) ?? ""
-        let bio = (try? c.decode(String.self, forKey: .bio)) ?? ""
-        let bioShort = try? c.decode(String.self, forKey: .bioShort)
-        let team = (try? c.decode(TeamCode.self, forKey: .team)) ?? .coreTeam
-        let imageURL = try? c.decode(String.self, forKey: .imageURL)
-
-        // Deterministic id: use provided id or generate from team+name slug
-        if let provided = try? c.decode(String.self, forKey: .id), !provided.isEmpty {
-            self.id = provided
-        } else {
-            self.id = TeamMember.makeSlugId(team: team, name: name)
-        }
-        self.name = name
-        self.title = title
-        self.bio = bio
-        self.bioShort = bioShort
-        self.team = team
-        self.imageURL = imageURL
-    }
-
-    static func makeSlugId(team: TeamCode, name: String) -> String {
-        let ns = name.lowercased()
-            .replacingOccurrences(of: "[^a-z0-9]+", with: "_", options: .regularExpression)
-            .trimmingCharacters(in: CharacterSet(charactersIn: "_"))
-        return "member.\(team.rawValue).\(ns)"
-    }
-
-    // Memberwise initializer for convenience (e.g., fallbacks, previews)
-    init(id: String, name: String, title: String, bio: String, bioShort: String? = nil, team: TeamCode, imageURL: String? = nil) {
+    // Convenience initializer for testing and local data
+    init(id: String, name: String, title: String, bio: String, bioShort: String? = nil, team: TeamCode, imageURL: String? = nil, order: Int = 0) {
         self.id = id
         self.name = name
         self.title = title
@@ -185,6 +174,7 @@ struct TeamMember: Identifiable, Codable {
         self.bioShort = bioShort
         self.team = team
         self.imageURL = imageURL
+        self.order = order
     }
 }
 
@@ -200,20 +190,30 @@ struct ImpactStat: Identifiable, Codable {
     let label: String
     let subtitle: String
     let icon: String
+    let order: Int
 }
 
 // MARK: - Organization Info Model
 struct OrganizationInfo: Codable, Identifiable {
-    var id: String?
+    let id: String
     let mission: String
     let description: String
     let tagline: String
     let contactEmail: String
+
+    // Convenience initializer for testing and local data
+    init(id: String, mission: String, description: String, tagline: String, contactEmail: String) {
+        self.id = id
+        self.mission = mission
+        self.description = description
+        self.tagline = tagline
+        self.contactEmail = contactEmail
+    }
 }
 
 // MARK: - Articles
 struct Article: Identifiable, Codable, Equatable {
-    var id: String?
+    let id: String
     let title: String
     let mediumLink: String
     let imageLink: String
@@ -221,6 +221,7 @@ struct Article: Identifiable, Codable, Equatable {
     let publishedAt: Date?
     
     enum CodingKeys: String, CodingKey {
+        case id
         case title
         case mediumLink = "medium_link"
         case imageLink = "image_link"
@@ -228,44 +229,35 @@ struct Article: Identifiable, Codable, Equatable {
         case publishedAt = "published_at"
     }
 
-    // Custom decoding to parse ISO8601 date without altering global decoder setup
+    // Custom decoding to parse Firestore Timestamps and ISO8601 dates
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        self.title = (try? c.decode(String.self, forKey: .title)) ?? ""
-        self.mediumLink = (try? c.decode(String.self, forKey: .mediumLink)) ?? ""
-        self.imageLink = (try? c.decode(String.self, forKey: .imageLink)) ?? ""
-        self.articleTags = (try? c.decode([String].self, forKey: .articleTags)) ?? []
-        if let dateString = try? c.decode(String.self, forKey: .publishedAt) {
+        self.id = try c.decode(String.self, forKey: .id)
+        self.title = try c.decode(String.self, forKey: .title)
+        self.mediumLink = try c.decode(String.self, forKey: .mediumLink)
+        self.imageLink = try c.decode(String.self, forKey: .imageLink)
+        self.articleTags = try c.decode([String].self, forKey: .articleTags)
+        
+        // Handle both Firestore Timestamp and String dates
+        if let timestamp = try? c.decode(Timestamp.self, forKey: .publishedAt) {
+            // Firestore Timestamp
+            self.publishedAt = timestamp.dateValue()
+        } else if let dateString = try? c.decode(String.self, forKey: .publishedAt) {
+            // String date (from JSON)
             self.publishedAt = Article.iso8601Formatter.date(from: dateString) ?? Article.fallbackFormatter.date(from: dateString)
         } else {
             self.publishedAt = nil
         }
-        // id is optional / not present in CodingKeys; rely on synthesized id if provided externally
-        // Attempt to extract id from top-level keyed container if exists under "id"
-        if let rawId = (try? decoder.singleValueContainer().decode(String.self)) { // unlikely path
-            self.id = rawId
-        } else if let idAny = try? decoder.container(keyedBy: DynamicCodingKeys.self) { // search for "id"
-            self.id = try? idAny.decodeIfPresent(String.self, forKey: DynamicCodingKeys(stringValue: "id")!)
-        } else {
-            self.id = nil
-        }
     }
 
-    // Convenience memberwise initializer for previews / manual construction
-    init(id: String? = nil, title: String, mediumLink: String, imageLink: String, articleTags: [String], publishedAt: Date? = nil) {
+    // Convenience initializer for testing and previews
+    init(id: String, title: String, mediumLink: String, imageLink: String, articleTags: [String], publishedAt: Date? = nil) {
         self.id = id
         self.title = title
         self.mediumLink = mediumLink
         self.imageLink = imageLink
         self.articleTags = articleTags
         self.publishedAt = publishedAt
-    }
-
-    private struct DynamicCodingKeys: CodingKey {
-        var stringValue: String
-        init?(stringValue: String) { self.stringValue = stringValue }
-        var intValue: Int? { nil }
-        init?(intValue: Int) { return nil }
     }
     
     // Date formatters

@@ -6,12 +6,21 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
 @main
 struct ChiEACApp: App {
+    @StateObject private var appDataManager = AppDataManager.shared
+    
+    init() {
+        // Configure Firebase on app launch
+        FirebaseApp.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(appDataManager)
                 .preferredColorScheme(.light)
         }
     }

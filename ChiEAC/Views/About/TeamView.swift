@@ -47,10 +47,10 @@ struct TeamView: View {
 
 struct TeamView_Previews: PreviewProvider {
     static var previews: some View {
-        let team = Team(id: "team.core_team", name: "Core Team", code: .coreTeam, description: "desc")
+        let team = Team(id: "team.core_team", name: "Core Team", code: .coreTeam, description: "desc", order: 1)
         let members: [TeamMember] = [
-            TeamMember(id: "m1", name: "Jane Doe", title: "Role", bio: "Long bio here", team: .coreTeam, imageURL: nil),
-            TeamMember(id: "m2", name: "John Doe", title: "Role", bio: "Longer bio here", team: .coreTeam, imageURL: nil)
+            TeamMember(id: "m1", name: "Jane Doe", title: "Role", bio: "Long bio here", bioShort: nil, team: .coreTeam, imageURL: nil, order: 1),
+            TeamMember(id: "m2", name: "John Doe", title: "Role", bio: "Longer bio here", bioShort: nil, team: .coreTeam, imageURL: nil, order: 2)
         ]
         NavigationView { TeamView(team: team, members: members) }
     }

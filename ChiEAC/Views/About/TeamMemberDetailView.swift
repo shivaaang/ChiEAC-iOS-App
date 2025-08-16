@@ -104,7 +104,8 @@ struct TeamMemberDetailView_Previews: PreviewProvider {
             bio: "Jane has over a decade of experience leading community-based education initiatives across Chicago. She focuses on building partnerships and mentoring first-generation students.",
             bioShort: "Program Director with 10+ years of experience.",
             team: .coreTeam,
-            imageURL: nil
+            imageURL: nil,
+            order: 1
         )
         TeamMemberDetailView(member: member)
             .background(Color.gray.opacity(0.5))

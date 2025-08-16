@@ -23,7 +23,7 @@ struct AboutView: View {
                     
                     // Team summary cards
                     VStack(spacing: 16) {
-                        if viewModel.isAnyContentLoading {
+                        if viewModel.isLoading {
                             // Simple placeholders
                             ForEach(0..<2, id: \.self) { _ in
                                 RoundedRectangle(cornerRadius: 16)
