@@ -103,7 +103,7 @@ struct TeamMemberDetailView_Previews: PreviewProvider {
             title: "Program Director",
             bio: "Jane has over a decade of experience leading community-based education initiatives across Chicago. She focuses on building partnerships and mentoring first-generation students.",
             bioShort: "Program Director with 10+ years of experience.",
-            team: .coreTeam,
+            team: "core_team",
             imageURL: nil,
             order: 1
         )

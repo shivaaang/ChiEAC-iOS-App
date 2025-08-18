@@ -37,15 +37,7 @@ class AboutViewModel: ObservableObject {
     var hasDataLoaded: Bool {
         !appDataManager.teams.isEmpty && !appDataManager.teamMembers.isEmpty
     }
-    
-    var coreTeamMembers: [TeamMember] {
-        members.filter { $0.team == .coreTeam && !$0.name.isEmpty }
-    }
-    
-    var advisoryBoardMembers: [TeamMember] {
-        members.filter { $0.team == .advisoryBoard && !$0.name.isEmpty }
-    }
-    
+
     // MARK: - Initialization
     init() {
         // No need to load data here - AppDataManager handles it
@@ -74,21 +66,16 @@ class AboutViewModel: ObservableObject {
     func getTeamMember(byName name: String) -> TeamMember? {
         members.first { $0.name == name }
     }
-    
-    func getCoreTeamCount() -> Int {
-        coreTeamMembers.count
+
+    func getTeamMemberCount(for teamCode: String) -> Int {
+        members.filter { $0.team == teamCode && !$0.name.isEmpty }.count
     }
-    
-    func getAdvisoryBoardCount() -> Int {
-        advisoryBoardMembers.count
-    }
-    
+
     func getTotalTeamCount() -> Int {
         members.count
     }
-    
-    // MARK: - Contact Actions removed (no email/phone in new team member schema)
 
+    // MARK: - Team Filtering
     func members(for team: Team) -> [TeamMember] {
         members.filter { $0.team == team.code && !$0.name.isEmpty }
     }

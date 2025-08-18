@@ -34,6 +34,9 @@ protocol AsyncDataRepository {
     
     // MARK: - External Links
     func loadExternalLinks() async throws -> [ExternalLink]
+    
+    // MARK: - Contact Form
+    func submitContactForm(_ submission: ContactFormSubmission) async throws
 }
 
 /// Additional protocol for Firestore-specific cache operations
@@ -262,7 +265,7 @@ class FirestoreRepository: AsyncDataRepository, FirestoreRepositoryProtocol {
         return teamMembers.sorted { 
             if $0.team != $1.team {
                 // Sort teams by their natural order (core_team first, then advisory_board)
-                return $0.team.rawValue < $1.team.rawValue
+                return $0.team < $1.team
             }
             return $0.order < $1.order
         }
@@ -341,6 +344,25 @@ class FirestoreRepository: AsyncDataRepository, FirestoreRepositoryProtocol {
                 return nil
             }
         }
+    }
+    
+    // MARK: - Contact Form
+    func submitContactForm(_ submission: ContactFormSubmission) async throws {
+        // Use auto-generated document ID instead of submission.id
+        let docRef = db.collection("contact_form_submissions").document()
+        
+        // Create submission data without the id field (Firestore will auto-generate)
+        let submissionData: [String: Any] = [
+            "firstName": submission.firstName,
+            "lastName": submission.lastName,
+            "email": submission.email,
+            "phone": submission.phone,
+            "message": submission.message,
+            "source": submission.source,
+            "submittedAt": submission.submittedAt
+        ]
+        
+        try await docRef.setData(submissionData)
     }
     
     // MARK: - Cache-Only Methods
@@ -433,7 +455,7 @@ class FirestoreRepository: AsyncDataRepository, FirestoreRepositoryProtocol {
         }
         return teamMembers.sorted { 
             if $0.team != $1.team {
-                return $0.team.rawValue < $1.team.rawValue
+                return $0.team < $1.team
             }
             return $0.order < $1.order
         }

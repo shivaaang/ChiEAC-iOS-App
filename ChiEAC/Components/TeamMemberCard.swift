@@ -125,7 +125,7 @@ struct TeamMemberCard_Previews: PreviewProvider {
                 title: "Founder & Executive Director",
                 bio: "Founded ChiEAC in 2020 with passion for addressing systemic educational inequities.",
                 bioShort: "Founded ChiEAC in 2020…",
-                team: .coreTeam,
+                team: "core_team",
                 imageURL: nil,
                 order: 1
             ),

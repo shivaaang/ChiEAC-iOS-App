@@ -83,6 +83,7 @@ struct HeaderSection: View {
     let organization: OrganizationInfo
     @Environment(\.openURL) private var openURL
     @State private var showVolunteerSheet = false
+    @State private var showGetHelpForm = false
     @State private var volunteerURL: String? = nil
     
     var body: some View {
@@ -147,26 +148,40 @@ struct HeaderSection: View {
                 .padding(.horizontal, 15)
                 
                 // CTA buttons
-                HStack(spacing: 14) {
-                    NavigationLink(destination: SupportMissionView()) {
-                        HStack(spacing: 8) {
-                            Text("Support Us")
-                            Image(systemName: "arrow.right")
+                VStack(spacing: 14) {
+                    HStack(spacing: 14) {
+                        NavigationLink(destination: SupportMissionView()) {
+                            HStack(spacing: 8) {
+                                Text("Support Us")
+                                Image(systemName: "arrow.right")
+                            }
+                            .frame(maxWidth: .infinity)
                         }
-                        .frame(maxWidth: .infinity)
+                        .buttonStyle(PrimaryCTAButtonStyle())
+                        
+                        Button(action: {
+                            if volunteerURL != nil { showVolunteerSheet = true }
+                        }) {
+                            HStack(spacing: 8) {
+                                Text("Volunteer")
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(OutlineCTAButtonStyle())
+                        .disabled(volunteerURL == nil)
                     }
-                    .buttonStyle(PrimaryCTAButtonStyle())
                     
+                    // Get Help button - full width
                     Button(action: {
-                        if volunteerURL != nil { showVolunteerSheet = true }
+                        showGetHelpForm = true
                     }) {
                         HStack(spacing: 8) {
-                            Text("Volunteer")
+                            Text("Get Help")
+                            Image(systemName: "questionmark.circle")
                         }
                         .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(OutlineCTAButtonStyle())
-                    .disabled(volunteerURL == nil)
+                    .buttonStyle(TertiaryCTAButtonStyle())
                 }
                 .padding(.horizontal, 30)
                 .padding(.top, 2)
@@ -176,6 +191,9 @@ struct HeaderSection: View {
                     } else {
                         Text("Volunteer link unavailable.").padding()
                     }
+                }
+                .sheet(isPresented: $showGetHelpForm) {
+                    ContactFormView(source: .getHelp)
                 }
             }
             .padding(.bottom, 20)
@@ -551,6 +569,21 @@ struct OutlineCTAButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(Color.chieacPrimary, lineWidth: 1.5)
                     .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
+            )
+            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .contentShape(Rectangle())
+    }
+}
+
+struct TertiaryCTAButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.chieacButtonSecondary)
+            .foregroundColor(.chieacSecondary)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.chieacMintGreen)
             )
             .opacity(configuration.isPressed ? 0.8 : 1.0)
             .contentShape(Rectangle())

@@ -8,7 +8,7 @@ import SwiftUI
 
 struct ProgramDetailView: View {
     let program: ProgramInfo
-    @Environment(\.openURL) private var openURL
+    @State private var showingContactForm = false
     
     var body: some View {
         ScrollView {
@@ -104,9 +104,7 @@ struct ProgramDetailView: View {
                         .foregroundColor(.white)
                     
                     Button(action: {
-                        if let url = URL(string: "mailto:\(program.contactEmail)") {
-                            openURL(url)
-                        }
+                        showingContactForm = true
                     }) {
                         Text("Contact Us About \(program.title)")
                             .font(.headline)
@@ -137,5 +135,12 @@ struct ProgramDetailView: View {
         .background(Color.chieacLightBackground)
         .navigationTitle(program.title)
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingContactForm) {
+            ContactFormView(
+                source: program.contactFormSource,
+                sourceString: program.programSourceString,
+                customTitle: "Contact Us About \(program.title)"
+            )
+        }
     }
 }

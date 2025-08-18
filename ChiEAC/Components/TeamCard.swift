@@ -101,10 +101,10 @@ private struct AvatarBubble: View {
 
 struct TeamCard_Previews: PreviewProvider {
     static var previews: some View {
-        let team = Team(id: "team.core_team", name: "Core Team", code: .coreTeam, description: "Meet the exceptionally dedicated team of educators...", order: 1)
+        let team = Team(id: "team.core_team", name: "Core Team", code: "core_team", description: "Meet the exceptionally dedicated team of educators...", order: 1)
         let members: [TeamMember] = [
-            TeamMember(id: "m1", name: "Jane Doe", title: "Role", bio: "bio", bioShort: nil, team: .coreTeam, imageURL: nil, order: 1),
-            TeamMember(id: "m2", name: "John Doe", title: "Role", bio: "bio", bioShort: nil, team: .coreTeam, imageURL: nil, order: 2)
+            TeamMember(id: "m1", name: "Jane Doe", title: "Role", bio: "bio", bioShort: nil, team: "core_team", imageURL: nil, order: 1),
+            TeamMember(id: "m2", name: "John Doe", title: "Role", bio: "bio", bioShort: nil, team: "core_team", imageURL: nil, order: 2)
         ]
         TeamCard(team: team, members: members)
             .padding()

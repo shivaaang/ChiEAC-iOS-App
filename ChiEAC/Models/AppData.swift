@@ -84,11 +84,10 @@ struct ProgramInfo: Identifiable, Codable {
     let benefits: [String]
     let impact: [String]
     let icon: String
-    let contactEmail: String
     let order: Int
 
     // Convenience initializer for testing and local data
-    init(id: String, title: String, subtitle: String, description: String, benefits: [String], impact: [String], icon: String, contactEmail: String, order: Int = 0) {
+    init(id: String, title: String, subtitle: String, description: String, benefits: [String], impact: [String], icon: String, order: Int = 0) {
         self.id = id
         self.title = title
         self.subtitle = subtitle
@@ -96,7 +95,6 @@ struct ProgramInfo: Identifiable, Codable {
         self.benefits = benefits
         self.impact = impact
         self.icon = icon
-        self.contactEmail = contactEmail
         self.order = order
     }
 }
@@ -105,33 +103,10 @@ struct ProgramInfo: Identifiable, Codable {
 // All program data is now managed in Firebase Firestore
 
 // MARK: - Team Data (revamped)
-enum TeamCode: String, Codable, CaseIterable {
-    case coreTeam = "core_team"
-    case advisoryBoard = "advisory_board"
-
-    // Be lenient with alternative spellings that may appear in content
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let raw = (try? container.decode(String.self)) ?? "core_team"
-        switch raw {
-        case "core_team": self = .coreTeam
-        case "advisory_board", "advisory_team": self = .advisoryBoard
-        default: self = .coreTeam
-        }
-    }
-
-    func displayName() -> String {
-        switch self {
-        case .coreTeam: return "Core Team"
-        case .advisoryBoard: return "Advisory Board"
-        }
-    }
-}
-
 struct Team: Identifiable, Codable {
     let id: String
     let name: String
-    let code: TeamCode
+    let code: String
     let description: String
     let order: Int
 
@@ -150,7 +125,7 @@ struct TeamMember: Identifiable, Codable {
     let title: String
     let bio: String
     let bioShort: String?
-    let team: TeamCode
+    let team: String
     let imageURL: String?
     let order: Int
 
@@ -166,7 +141,7 @@ struct TeamMember: Identifiable, Codable {
     }
 
     // Convenience initializer for testing and local data
-    init(id: String, name: String, title: String, bio: String, bioShort: String? = nil, team: TeamCode, imageURL: String? = nil, order: Int = 0) {
+    init(id: String, name: String, title: String, bio: String, bioShort: String? = nil, team: String, imageURL: String? = nil, order: Int = 0) {
         self.id = id
         self.name = name
         self.title = title
@@ -286,6 +261,76 @@ struct ExternalLink: Identifiable, Codable {
         case id
         case name = "link_name"
         case address = "link_address"
+    }
+}
+
+// MARK: - Contact Form
+struct ContactFormSubmission: Codable, Identifiable {
+    let id: String // This will be the Firestore document ID
+    let firstName: String
+    let lastName: String
+    let email: String
+    let phone: String
+    let message: String
+    let source: String // Changed to String to support dynamic program sources
+    let submittedAt: Date
+    
+    // Convenience initializer - ID will be set by Firestore
+    init(firstName: String, lastName: String, email: String, phone: String, message: String, source: String) {
+        self.id = "" // Will be replaced with Firestore auto-ID
+        self.firstName = firstName
+        self.lastName = lastName
+        self.email = email
+        self.phone = phone
+        self.message = message
+        self.source = source
+        self.submittedAt = Date()
+    }
+}
+
+enum ContactFormSource: String, Codable, CaseIterable {
+    case getHelp = "get_help"
+    case programInquiry = "program_inquiry"
+    case volunteer = "volunteer"
+    case general = "general"
+    case partnership = "partnership"
+    
+    var displayName: String {
+        switch self {
+        case .getHelp: return "Get Help"
+        case .programInquiry: return "Program Inquiry"
+        case .volunteer: return "Volunteer"
+        case .general: return "General Contact"
+        case .partnership: return "Partnership"
+        }
+    }
+    
+    var formTitle: String {
+        switch self {
+        case .getHelp: return "Get Help"
+        case .programInquiry: return "Program Information"
+        case .volunteer: return "Volunteer With Us"
+        case .general: return "Contact Us"
+        case .partnership: return "Partnership Inquiry"
+        }
+    }
+}
+
+// Extension to extract program source from program ID
+extension ProgramInfo {
+    var contactFormSource: ContactFormSource {
+        // All programs use the generic program inquiry form configuration
+        return .programInquiry
+    }
+    
+    var programSourceString: String {
+        // Extract program name from ID format: "program.xxx" -> "xxx"
+        return id.replacingOccurrences(of: "program.", with: "")
+    }
+    
+    var programName: String {
+        // Extract program name from ID format: "program.xxx"
+        return id.replacingOccurrences(of: "program.", with: "").capitalized
     }
 }
 

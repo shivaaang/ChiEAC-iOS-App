@@ -27,7 +27,7 @@ struct ContentView: View {
                     Spacer()
                     ConnectivityBanner()
                         .padding(.bottom, 60) // Just above programs tab
-                }z
+                }
                 .animation(.easeInOut(duration: 0.3), value: appDataManager.shouldShowConnectivityBanner)
             }
         }
