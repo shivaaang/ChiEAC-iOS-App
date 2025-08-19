@@ -12,16 +12,16 @@ struct ArticleHomeCard: View {
     
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            RefreshableAsyncImageWithPhase(url: URL(string: article.imageLink)) { phase in
+            QuickLoadAsyncImage(url: URL(string: article.imageLink), timeout: 2.0) { phase in
                 switch phase {
                 case .empty:
-                    Color.gray.opacity(0.15).overlay(ProgressView())
+                    Image("chieac-article-placeholder").resizable().scaledToFill()
                 case .success(let image):
                     image.resizable().scaledToFill()
                 case .failure(_):
-                    Color.gray.opacity(0.2).overlay(Image(systemName: "photo").font(.title).foregroundColor(.gray))
+                    Image("chieac-article-placeholder").resizable().scaledToFill()
                 @unknown default:
-                    Color.gray.opacity(0.2)
+                    Image("chieac-article-placeholder").resizable().scaledToFill()
                 }
             }
             .frame(width: 260, height: 150)

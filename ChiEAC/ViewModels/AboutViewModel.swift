@@ -21,6 +21,8 @@ class AboutViewModel: ObservableObject {
     // MARK: - Computed Properties
     var teams: [Team] { appDataManager.teams }
     var members: [TeamMember] { appDataManager.teamMembers }
+    var externalLinks: [ExternalLink] { appDataManager.externalLinks }
+    var organizationInfo: OrganizationInfo? { appDataManager.organizationData }
     
     var hasError: Bool {
         error != nil || appDataManager.error != nil
@@ -73,6 +75,27 @@ class AboutViewModel: ObservableObject {
 
     func getTotalTeamCount() -> Int {
         members.count
+    }
+    
+    // MARK: - External Links Helper Methods
+    func getExternalLink(named linkName: String) -> ExternalLink? {
+        externalLinks.first { $0.name.lowercased() == linkName.lowercased() }
+    }
+    
+    var youtubeURL: String? {
+        getExternalLink(named: "youtube")?.address
+    }
+    
+    var instagramURL: String? {
+        getExternalLink(named: "instagram")?.address
+    }
+    
+    var linkedinURL: String? {
+        getExternalLink(named: "linkedin")?.address
+    }
+    
+    var websiteURL: String? {
+        getExternalLink(named: "chieac_website")?.address
     }
 
     // MARK: - Team Filtering

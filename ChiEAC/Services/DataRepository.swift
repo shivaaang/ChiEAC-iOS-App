@@ -84,8 +84,8 @@ class FirestoreRepository: AsyncDataRepository, FirestoreRepositoryProtocol {
         
         Firestore.firestore().settings = settings
         
-        // Use named database for staging/production separation
-        db = Firestore.firestore(database: "chieac-app-db")
+        // Use default database
+        db = Firestore.firestore()
     }
     
     // MARK: - Primary Data Loading with Server Detection

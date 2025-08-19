@@ -67,6 +67,7 @@ struct HomeView: View {
             .navigationTitle("")
             .navigationBarHidden(true)
         }
+        .navigationViewStyle(.stack)
         .accentColor(.chieacPrimary)
         .alert("Error Loading Content", isPresented: .constant(viewModel.hasError)) {
             Button("Retry") { viewModel.retry() }
@@ -322,10 +323,6 @@ struct ImpactStatsSection: View {
                 }
             }
         }
-        .padding(20)
-        .background(Color.chieacCardGreen)
-    .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
     }
 }
 

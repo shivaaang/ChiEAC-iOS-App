@@ -49,13 +49,55 @@ struct AboutView: View {
                     }
                     .padding(.top, 16)
                     
+                    // Social Media Links Section
+                    VStack(spacing: 16) {
+                        if viewModel.isLoading {
+                            // Social media loading placeholder
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.chieacCardGreen.opacity(0.5))
+                                .frame(height: 220)
+                                .padding(.horizontal, 20)
+                                .redacted(reason: .placeholder)
+                        } else {
+                            SocialMediaLinksCard(
+                                youtubeURL: viewModel.youtubeURL,
+                                instagramURL: viewModel.instagramURL,
+                                linkedinURL: viewModel.linkedinURL,
+                                websiteURL: viewModel.websiteURL
+                            )
+                            .padding(.horizontal, 20)
+                        }
+                    }
+                    .padding(.top, 24)
+                    
+                    // Get In Touch Section
+                    VStack(spacing: 16) {
+                        if viewModel.isLoading {
+                            // Get in touch loading placeholder
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.chieacCardGreen.opacity(0.5))
+                                .frame(height: 200)
+                                .padding(.horizontal, 20)
+                                .redacted(reason: .placeholder)
+                        } else {
+                            GetInTouchCard(
+                                contactEmail: viewModel.organizationInfo?.contactEmail,
+                                contactPhone: viewModel.organizationInfo?.contactPhone
+                            )
+                            .padding(.horizontal, 20)
+                        }
+                    }
+                    .padding(.top, 24)
+                    
                     Spacer(minLength: 24)
                 }
             }
             .background(Color.chieacLightBackground)
+            .ignoresSafeArea(edges: .top)
             .navigationTitle("")
             .navigationBarHidden(true)
         }
+        .navigationViewStyle(.stack)
         .accentColor(.chieacPrimary)
         .alert("Error Loading Team", isPresented: .constant(viewModel.hasError)) {
             Button("Retry") {

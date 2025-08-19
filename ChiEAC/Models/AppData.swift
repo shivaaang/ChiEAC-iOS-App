@@ -175,14 +175,16 @@ struct OrganizationInfo: Codable, Identifiable {
     let description: String
     let tagline: String
     let contactEmail: String
+    let contactPhone: String?
 
     // Convenience initializer for testing and local data
-    init(id: String, mission: String, description: String, tagline: String, contactEmail: String) {
+    init(id: String, mission: String, description: String, tagline: String, contactEmail: String, contactPhone: String? = nil) {
         self.id = id
         self.mission = mission
         self.description = description
         self.tagline = tagline
         self.contactEmail = contactEmail
+        self.contactPhone = contactPhone
     }
 }
 

@@ -23,6 +23,61 @@ struct ContactFormView: View {
         self._viewModel = StateObject(wrappedValue: ContactFormViewModel(source: source, sourceString: finalSourceString, customTitle: customTitle))
     }
     
+    // Native iOS-style keyboard toolbar
+    private var nativeKeyboardToolbar: some View {
+        HStack(spacing: 0) {
+            // Previous button
+            Button(action: moveToPrevious) {
+                Image(systemName: "chevron.up")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundColor(canMovePrevious ? .blue : .gray)
+                    .frame(width: 44, height: 44)
+            }
+            .disabled(!canMovePrevious)
+            
+            // Next button  
+            Button(action: moveToNext) {
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundColor(canMoveNext ? .blue : .gray)
+                    .frame(width: 44, height: 44)
+            }
+            .disabled(!canMoveNext)
+            
+            Spacer()
+            
+            // Done button
+            Button("Done") {
+                focusedField = nil
+            }
+            .font(.system(size: 17, weight: .medium))
+            .foregroundColor(.blue)
+        }
+        .frame(height: 44)
+        .background(Color(UIColor.systemBackground))
+    }
+    
+    // Navigation logic
+    private var canMovePrevious: Bool {
+        focusedField?.previous != nil
+    }
+    
+    private var canMoveNext: Bool {
+        focusedField?.next != nil
+    }
+    
+    private func moveToPrevious() {
+        guard let currentField = focusedField,
+              let previousField = currentField.previous else { return }
+        focusedField = previousField
+    }
+    
+    private func moveToNext() {
+        guard let currentField = focusedField,
+              let nextField = currentField.next else { return }
+        focusedField = nextField
+    }
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -70,7 +125,6 @@ struct ContactFormView: View {
                                         autocapitalization: .words
                                     )
                                     .focused($focusedField, equals: .firstName)
-                                    .onSubmit { focusedField = .lastName }
                                     .frame(maxWidth: .infinity)
                                     
                                     FormTextField(
@@ -81,7 +135,6 @@ struct ContactFormView: View {
                                         autocapitalization: .words
                                     )
                                     .focused($focusedField, equals: .lastName)
-                                    .onSubmit { focusedField = .email }
                                     .frame(maxWidth: .infinity)
                                 }
                                 
@@ -95,7 +148,6 @@ struct ContactFormView: View {
                                     autocapitalization: .never
                                 )
                                 .focused($focusedField, equals: .email)
-                                .onSubmit { focusedField = .phone }
                                 
                                 // Phone with professional formatting
                                 FormPhoneField(
@@ -106,7 +158,6 @@ struct ContactFormView: View {
                                     isOptional: true
                                 )
                                 .focused($focusedField, equals: .phone)
-                                .onSubmit { focusedField = .message }
                                 
                                 // Message
                                 FormTextEditor(
@@ -171,6 +222,13 @@ struct ContactFormView: View {
                     }
                 }
             }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    if focusedField != nil {
+                        nativeKeyboardToolbar
+                    }
+                }
+            }
         }
         .alert("Error", isPresented: $viewModel.showErrorAlert) {
             Button("OK") {
@@ -190,8 +248,22 @@ struct ContactFormView: View {
 
 // MARK: - Form Fields Enum
 
-enum FormField: Hashable {
+enum FormField: Hashable, CaseIterable {
     case firstName, lastName, email, phone, message
+    
+    var next: FormField? {
+        let allCases = FormField.allCases
+        guard let currentIndex = allCases.firstIndex(of: self) else { return nil }
+        let nextIndex = currentIndex + 1
+        return nextIndex < allCases.count ? allCases[nextIndex] : nil
+    }
+    
+    var previous: FormField? {
+        let allCases = FormField.allCases
+        guard let currentIndex = allCases.firstIndex(of: self) else { return nil }
+        let previousIndex = currentIndex - 1
+        return previousIndex >= 0 ? allCases[previousIndex] : nil
+    }
 }
 
 // MARK: - Secondary Button Style

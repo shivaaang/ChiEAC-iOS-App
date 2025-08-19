@@ -39,16 +39,16 @@ struct ArticlePageCard: View {
             }
             .frame(height: contentHeight, alignment: .top)
 
-            AsyncImage(url: URL(string: article.imageLink)) { phase in
+            QuickLoadAsyncImage(url: URL(string: article.imageLink), timeout: 2.0) { phase in
                 switch phase {
                 case .empty:
-                    ZStack { Color.gray.opacity(0.15); ProgressView() }
+                    Image("chieac-article-placeholder").resizable().scaledToFill()
                 case .success(let image):
                     image.resizable().scaledToFill()
                 case .failure(_):
-                    ZStack { Color.gray.opacity(0.2); Image(systemName: "photo").font(.title).foregroundColor(.gray) }
+                    Image("chieac-article-placeholder").resizable().scaledToFill()
                 @unknown default:
-                    Color.gray.opacity(0.2)
+                    Image("chieac-article-placeholder").resizable().scaledToFill()
                 }
             }
             .frame(width: Self.imageWidth, height: contentHeight)

@@ -48,9 +48,11 @@ struct ProgramsView: View {
                 }
             }
             .background(Color.chieacLightBackground)
+            .ignoresSafeArea(edges: .top)
             .navigationTitle("")
             .navigationBarHidden(true)
         }
+        .navigationViewStyle(.stack)
         .accentColor(.chieacPrimary)
         .alert("Error Loading Programs", isPresented: .constant(viewModel.hasError)) {
             Button("Retry") {

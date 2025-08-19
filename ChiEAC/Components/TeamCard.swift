@@ -13,16 +13,37 @@ struct TeamCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Title
-            Text(team.name)
-                .font(.chieacHero)
-                .foregroundColor(.chieacTextPrimary)
+            // Header with title and CTA
+            HStack(alignment: .top) {
+                // Title
+                Text(team.name)
+                    .font(.chieacHero)
+                    .foregroundColor(.chieacTextPrimary)
+                
+                Spacer()
+                
+                // Compact CTA in top right
+                HStack(spacing: 4) {
+                    Text("View")
+                        .font(.chieacCaption)
+                        .foregroundColor(.chieacSecondary)
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.chieacSecondary)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.chieacSecondary.opacity(0.1))
+                .cornerRadius(8)
+            }
             
-            // Description
+            // Description - full width
             Text(team.description)
                 .font(.chieacBody)
                 .foregroundColor(.chieacTextSecondary)
                 .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
             // Avatar strip
             HStack(spacing: -8) {
@@ -33,16 +54,6 @@ struct TeamCard: View {
                 }
                 Spacer()
             }
-            .padding(.top, 6)
-            
-            // CTA
-            HStack {
-                Text("Meet the team →")
-                    .font(.chieacBody)
-                    .foregroundColor(.chieacSecondary)
-                Spacer()
-            }
-            .padding(.top, 6)
         }
         .padding(20)
         .background(Color.white)
