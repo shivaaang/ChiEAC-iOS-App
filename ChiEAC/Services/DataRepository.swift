@@ -359,7 +359,8 @@ class FirestoreRepository: AsyncDataRepository, FirestoreRepositoryProtocol {
             "phone": submission.phone,
             "message": submission.message,
             "source": submission.source,
-            "submittedAt": submission.submittedAt
+            "submittedAt": submission.submittedAt,
+            "status": "incomplete"
         ]
         
         try await docRef.setData(submissionData)

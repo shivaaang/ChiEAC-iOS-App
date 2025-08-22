@@ -10,10 +10,9 @@ import SwiftUI
 struct CoreWorkCard: View {
     let work: CoreWork
     private let accentColor: Color = .chieacSecondary
-    private let minHeight: CGFloat = 230
     
     var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
+        HStack(alignment: .center, spacing: 12) {
             // Icon
             ZStack {
                 Circle()
@@ -25,42 +24,29 @@ struct CoreWorkCard: View {
             }
             .accessibilityHidden(true)
 
-            // Title
-            Text(work.title)
-                .font(.chieacCardTitle)
-                .foregroundColor(.chieacTextPrimary)
-                .lineLimit(2)
-                .minimumScaleFactor(0.9)
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
+                // Title
+                Text(work.title)
+                    .font(.chieacCardTitle)
+                    .foregroundColor(.chieacTextPrimary)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.9)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-            // Description
-            Text(work.description)
-                .font(.chieacCardBody)
-                .foregroundColor(.chieacTextSecondary)
-                .lineSpacing(2)
-                .lineLimit(5)
-
-            Spacer(minLength: 0)
-
-            // Learn more affordance
-            HStack(spacing: 6) {
-                Text("Learn more")
-                    .font(.chieacCaption)
-                    .foregroundColor(accentColor)
-                Image(systemName: "arrow.right")
-                    .font(.caption)
-                    .foregroundColor(accentColor)
+                // Description
+                Text(work.description)
+                    .font(.chieacCardBody)
+                    .foregroundColor(.chieacTextSecondary)
+                    .lineSpacing(2)
+                    .lineLimit(nil)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.top, 2)
         }
-    .padding(16)
-    .frame(minHeight: minHeight, alignment: .top)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.white)
         .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color(UIColor.systemGray5), lineWidth: 1)
-        )
         .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
     }
 }

@@ -75,38 +75,12 @@ private struct AvatarBubble: View {
     let name: String
     
     var body: some View {
-        // Only show something if we have a valid image URL
-        if let imageURL, !imageURL.isEmpty, let url = URL(string: imageURL) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    // Only show circle with image if it loaded successfully
-                    ZStack {
-                        Circle()
-                            .fill(Color.chieacSecondary)
-                            .frame(width: 32, height: 32)
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 32, height: 32)
-                            .clipShape(Circle())
-                    }
-                case .empty, .failure(_):
-                    // Don't show anything if image is loading or failed
-                    EmptyView()
-                @unknown default:
-                    EmptyView()
-                }
-            }
-        } else {
-            // No image URL - don't show anything
-            EmptyView()
-        }
-    }
-    
-    private func initials(_ name: String) -> String {
-        let comps = name.split(separator: " ")
-        return comps.prefix(2).compactMap { $0.first }.map { String($0) }.joined()
+        CachedImageView(
+            imageURL: imageURL,
+            name: name,
+            width: 32
+        )
+        .clipShape(Circle())
     }
 }
 

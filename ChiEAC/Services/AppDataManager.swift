@@ -205,7 +205,7 @@ final class AppDataManager: ObservableObject {
             // Check if we hit the server
             let hitServer = fetched.org.fromServer || 
                            fetched.articles.fromServer ||
-                           fetched.core.value.isEmpty == false ||  // If we got data, assume server hit
+                           fetched.core.fromServer ||
                            fetched.impact.fromServer
             
             if hitServer {

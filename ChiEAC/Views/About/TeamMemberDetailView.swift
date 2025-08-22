@@ -58,26 +58,14 @@ struct TeamMemberDetailView: View {
 
     @ViewBuilder
     private var memberImage: some View {
-    if let link = member.imageURL, let url = URL(string: link) {
-        AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                case .failure:
-            initialsPlaceholder(size: 250)
-                case .empty:
-                    ProgressView()
-                        .frame(width: 250, height: 250)
-                        .background(Color(UIColor.systemGray5))
-                @unknown default:
-                    EmptyView()
-                }
-            }
-        } else {
-        initialsPlaceholder(size: 250)
-        }
+        // Full-width image for detail view using our cached image component
+        CachedImageView(
+            imageURL: member.imageURL,
+            name: member.name,
+            height: 250
+        )
+        .frame(maxWidth: .infinity)
+        .clipped()
     }
 
     private var closeButton: some View {
@@ -109,30 +97,5 @@ struct TeamMemberDetailView_Previews: PreviewProvider {
         )
         TeamMemberDetailView(member: member)
             .background(Color.gray.opacity(0.5))
-    }
-}
-
-// MARK: - Local helpers
-extension TeamMemberDetailView {
-    private func initialsPlaceholder(size: CGFloat) -> some View {
-        ZStack {
-            LinearGradient(
-                colors: [.chieacPrimary, .chieacSecondary],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            Text(initials(from: member.name))
-                .font(.system(size: size / 3, weight: .bold))
-                .foregroundColor(.white)
-        }
-        .frame(height: size)
-        .frame(maxWidth: .infinity)
-        .clipped()
-    }
-
-    private func initials(from name: String) -> String {
-        let parts = name.split(separator: " ")
-        let letters = parts.compactMap { $0.first }.map { String($0) }
-        return letters.prefix(2).joined().uppercased()
     }
 }

@@ -23,6 +23,7 @@ struct HeroHeader<ExtraContent: View>: View {
     let assetImage: String?
     let gradientColors: [Color]
     let showDecorativeCircles: Bool
+    let showDecorativeWaves: Bool
     let topPadding: CGFloat
     let bottomPadding: CGFloat
     let extraContent: () -> ExtraContent
@@ -34,8 +35,9 @@ struct HeroHeader<ExtraContent: View>: View {
         assetImage: String? = nil,
         gradientColors: [Color] = [.chieacMintGreen, .white],
         showDecorativeCircles: Bool = false,
-        topPadding: CGFloat = 60,
-        bottomPadding: CGFloat = 24,
+        showDecorativeWaves: Bool = false,
+        topPadding: CGFloat = 64,
+        bottomPadding: CGFloat = 20,
         @ViewBuilder extraContent: @escaping () -> ExtraContent = { EmptyView() }
     ) {
         self.title = title
@@ -44,6 +46,7 @@ struct HeroHeader<ExtraContent: View>: View {
         self.assetImage = assetImage
         self.gradientColors = gradientColors
         self.showDecorativeCircles = showDecorativeCircles
+        self.showDecorativeWaves = showDecorativeWaves
         self.topPadding = topPadding
         self.bottomPadding = bottomPadding
         self.extraContent = extraContent
@@ -59,7 +62,7 @@ struct HeroHeader<ExtraContent: View>: View {
             )
             .overlay(decorativeOverlay)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 6) {
                 badge
                 Text(title)
                     .font(.chieacAppTitle)
@@ -106,8 +109,9 @@ struct HeroHeader<ExtraContent: View>: View {
     }
 
     @ViewBuilder private var decorativeOverlay: some View {
-        if showDecorativeCircles {
-            ZStack {
+        ZStack {
+            // Original Circles Pattern - soft, organic feel
+            if showDecorativeCircles {
                 Circle()
                     .fill(Color.white.opacity(0.6))
                     .frame(width: 240, height: 240)
@@ -117,8 +121,27 @@ struct HeroHeader<ExtraContent: View>: View {
                     .frame(width: 180, height: 180)
                     .offset(x: 160, y: 10)
             }
-        } else {
-            EmptyView()
+            
+            // Waves Pattern - flowing, dynamic movement
+            if showDecorativeWaves {
+                Ellipse()
+                    .fill(Color.white.opacity(0.4))
+                    .frame(width: 300, height: 120)
+                    .rotationEffect(.degrees(-15))
+                    .offset(x: -120, y: -80)
+                
+                Ellipse()
+                    .fill(Color.white.opacity(0.3))
+                    .frame(width: 200, height: 80)
+                    .rotationEffect(.degrees(20))
+                    .offset(x: 140, y: 30)
+                
+                Ellipse()
+                    .fill(Color.white.opacity(0.2))
+                    .frame(width: 250, height: 100)
+                    .rotationEffect(.degrees(-10))
+                    .offset(x: 0, y: -120)
+            }
         }
     }
 }
@@ -132,15 +155,23 @@ struct HeroHeader_Previews: PreviewProvider {
                 subtitle: "Meet the passionate team behind ChiEAC's mission",
                 systemImage: "person.3.fill"
             )
-            .previewDisplayName("Symbol Header")
+            .previewDisplayName("Basic Header")
 
             HeroHeader(
-                title: "ChiEAC",
-                subtitle: "Serving students and families con cariño",
-                assetImage: "chieac-logo-icon",
+                title: "Our Programs",
+                subtitle: "Empowering students across Chicago",
+                systemImage: "graduationcap.fill",
                 showDecorativeCircles: true
             )
-            .previewDisplayName("Logo Header w/ Decor")
+            .previewDisplayName("Circles Header")
+            
+            HeroHeader(
+                title: "Our Impact",
+                subtitle: "Creating waves of change",
+                systemImage: "chart.line.uptrend.xyaxis",
+                showDecorativeWaves: true
+            )
+            .previewDisplayName("Waves Header")
         }
     }
 }

@@ -13,51 +13,16 @@ struct TeamMemberCard: View {
     let onCardTap: () -> Void
     
     var body: some View {
-    VStack(alignment: .leading, spacing: 16) {
-            // Header with avatar and basic info
+        VStack(alignment: .leading, spacing: 16) {
+            // Header with avatar, info, and More button
             HStack(alignment: .top, spacing: 16) {
-                // Avatar - only show if image is available and loads successfully
-                ZStack {
-                    Circle()
-                        .fill(LinearGradient(
-                            gradient: Gradient(colors: [.chieacPrimary, .chieacSecondary]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ))
-                        .frame(width: 60, height: 60)
-                    
-                    if let imageURL = member.imageURL, !imageURL.isEmpty {
-                        // Only show if we have a valid image URL
-                        AsyncImage(url: URL(string: imageURL)) { phase in
-                            switch phase {
-                            case .success(let image):
-                                // Only show the image if it loaded successfully
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .clipShape(Circle())
-                                    .frame(width: 60, height: 60)
-                            case .empty, .failure(_):
-                                // Show initials for loading or failed states
-                                Text(getInitials(from: member.name))
-                                    .font(.chieacCardTitle)
-                                    .foregroundColor(.white)
-                                    .fontWeight(.bold)
-                            @unknown default:
-                                Text(getInitials(from: member.name))
-                                    .font(.chieacCardTitle)
-                                    .foregroundColor(.white)
-                                    .fontWeight(.bold)
-                            }
-                        }
-                    } else {
-                        // No image URL - show initials
-                        Text(getInitials(from: member.name))
-                            .font(.chieacCardTitle)
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                    }
-                }
+                // Avatar using cached component with circular clipping
+                CachedImageView(
+                    imageURL: member.imageURL,
+                    name: member.name,
+                    width: 60
+                )
+                .clipShape(Circle())
                 
                 // Info
                 VStack(alignment: .leading, spacing: 6) {
@@ -71,33 +36,35 @@ struct TeamMemberCard: View {
                 }
                 
                 Spacer()
-            }
-            
-            // Summary (prefer short summary if available)
-            Text(member.bioShort ?? member.bio)
-                .font(.chieacBody)
-                .foregroundColor(.chieacTextSecondary)
-                .lineSpacing(2)
-            
-            // Footer: More… link when there is a shorter summary
-            HStack(spacing: 12) {
-                Spacer()
-
-                // Show More… only if there is a longer bio available
+                
+                // More button in top-right corner (only if there is a longer bio available)
                 if let short = member.bioShort, !short.isEmpty, short != member.bio, let onMoreTap {
                     Button(action: onMoreTap) {
                         HStack(spacing: 4) {
-                            Text("More…")
+                            Text("More")
+                                .font(.chieacCaption)
+                                .foregroundColor(.chieacSecondary)
+                            
                             Image(systemName: "chevron.right")
-                                .font(.caption2)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.chieacSecondary)
                         }
-                        .font(.chieacCaption)
-                        .foregroundColor(.chieacSecondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.chieacSecondary.opacity(0.1))
+                        .cornerRadius(8)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("More details about \(member.name)")
                 }
             }
+            
+            // Summary (prefer short summary if available) - now full width
+            Text(member.bioShort ?? member.bio)
+                .font(.chieacBody)
+                .foregroundColor(.chieacTextSecondary)
+                .lineSpacing(2)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(20)
         .background(Color.white)
@@ -107,12 +74,6 @@ struct TeamMemberCard: View {
     .onTapGesture { onCardTap() }
     .accessibilityAddTraits(.isButton)
     .accessibilityLabel("Open details for \(member.name)")
-    }
-    
-    private func getInitials(from name: String) -> String {
-        let components = name.components(separatedBy: " ")
-        let initials = components.compactMap { $0.first }.map(String.init)
-    return initials.prefix(2).joined().uppercased()
     }
 }
 

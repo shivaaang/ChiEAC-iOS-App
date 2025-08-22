@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2BECC46C2E4FF8E200483260 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2BECC46B2E4FF8E200483260 /* FirebaseCore */; };
 		2BECC46E2E4FF8E200483260 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 2BECC46D2E4FF8E200483260 /* FirebaseFirestore */; };
+		2BECC5BE2E54665200483260 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 2BECC5BD2E54665200483260 /* Kingfisher */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BECC5BE2E54665200483260 /* Kingfisher in Frameworks */,
 				2BECC46C2E4FF8E200483260 /* FirebaseCore in Frameworks */,
 				2BECC46E2E4FF8E200483260 /* FirebaseFirestore in Frameworks */,
 			);
@@ -109,6 +111,7 @@
 			packageProductDependencies = (
 				2BECC46B2E4FF8E200483260 /* FirebaseCore */,
 				2BECC46D2E4FF8E200483260 /* FirebaseFirestore */,
+				2BECC5BD2E54665200483260 /* Kingfisher */,
 			);
 			productName = ChiEAC;
 			productReference = 2BBE7EF02E478E7A000E69E9 /* ChiEAC.app */;
@@ -188,6 +191,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				2BECC46A2E4FF8E200483260 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				2BECC5BC2E54665200483260 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2BBE7EF12E478E7A000E69E9 /* Products */;
@@ -398,7 +402,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -411,7 +415,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -431,7 +435,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -444,7 +448,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -461,7 +465,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ChiEAC.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ChiEAC";
 			};
 			name = Debug;
@@ -479,7 +483,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ChiEAC.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ChiEAC";
 			};
 			name = Release;
@@ -495,7 +499,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_TARGET_NAME = ChiEAC;
 			};
 			name = Debug;
@@ -511,7 +515,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_TARGET_NAME = ChiEAC;
 			};
 			name = Release;
@@ -566,6 +570,14 @@
 				minimumVersion = 12.1.0;
 			};
 		};
+		2BECC5BC2E54665200483260 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.5.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -578,6 +590,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2BECC46A2E4FF8E200483260 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		2BECC5BD2E54665200483260 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2BECC5BC2E54665200483260 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

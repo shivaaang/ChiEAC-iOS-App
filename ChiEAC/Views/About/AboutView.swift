@@ -17,8 +17,9 @@ struct AboutView: View {
                     // Hero Header (refactored)
                     HeroHeader(
                         title: "About Us",
-                        subtitle: "Meet the passionate team behind ChiEAC's mission",
-                        systemImage: "person.3.fill"
+                        subtitle: "Meet the passionate team behind our mission",
+                        systemImage: "person.2.fill",
+                        showDecorativeCircles: true
                     )
                     
                     // Team summary cards

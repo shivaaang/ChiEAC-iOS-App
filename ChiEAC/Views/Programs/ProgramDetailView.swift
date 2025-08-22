@@ -11,129 +11,47 @@ struct ProgramDetailView: View {
     @State private var showingContactForm = false
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 30) {
-                // Header
-                VStack(spacing: 16) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.chieacPrimary.opacity(0.15))
-                            .frame(width: 100, height: 100)
-                        
-                        Image(systemName: program.icon)
-                            .font(.system(size: 40))
-                            .foregroundColor(.chieacPrimary)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                // Hero Header Section
+                HeroHeader(
+                    title: program.title,
+                    subtitle: program.subtitle,
+                    systemImage: program.icon,
+                    gradientColors: [.chieacMintGreen, .white],
+                    showDecorativeWaves: true,
+                )
+                
+                // Main Content
+                VStack(spacing: 20) {
+                    // Program Overview Card
+                    ProgramOverviewCard(description: program.description)
+                    
+                    // Benefits Section
+                    ProgramBenefitsCard(benefits: program.benefits)
+                    
+                    // Impact Section (if available)
+                    if !program.impact.isEmpty {
+                        ProgramImpactCard(impact: program.impact)
                     }
                     
-                    Text(program.title)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.chieacTextPrimary)
+                    // Call to Action Card
+                    ProgramCTACard(
+                        programTitle: program.title,
+                        showingContactForm: $showingContactForm,
+                        program: program
+                    )
                     
-                    Text(program.subtitle)
-                        .font(.title2)
-                        .foregroundColor(.chieacPrimary)
+                    Spacer(minLength: 24)
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 20)
-                
-                // Description
-                Text(program.description)
-                    .font(.body)
-                    .foregroundColor(.chieacTextSecondary)
-                    .lineSpacing(4)
-                    .padding(.horizontal, 20)
-                
-                // Benefits
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Program Benefits")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.chieacTextPrimary)
-                        .padding(.horizontal, 20)
-                    
-                    LazyVStack(alignment: .leading, spacing: 12) {
-                        ForEach(program.benefits, id: \.self) { benefit in
-                            HStack(alignment: .top, spacing: 12) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.chieacSuccess)
-                                    .font(.system(size: 16))
-                                
-                                Text(benefit)
-                                    .font(.body)
-                                    .foregroundColor(.chieacTextSecondary)
-                                    .lineSpacing(2)
-                            }
-                            .padding(.horizontal, 20)
-                        }
-                    }
-                }
-                
-                // Impact
-                if !program.impact.isEmpty {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Program Impact")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.chieacTextPrimary)
-                            .padding(.horizontal, 20)
-                        
-                        LazyVStack(alignment: .leading, spacing: 12) {
-                            ForEach(program.impact, id: \.self) { impact in
-                                HStack(alignment: .top, spacing: 12) {
-                                    Image(systemName: "star.fill")
-                                        .foregroundColor(.chieacPrimary)
-                                        .font(.system(size: 16))
-                                    
-                                    Text(impact)
-                                        .font(.body)
-                                        .foregroundColor(.chieacTextSecondary)
-                                        .lineSpacing(2)
-                                }
-                                .padding(.horizontal, 20)
-                            }
-                        }
-                    }
-                }
-                
-                // Contact CTA
-                VStack(spacing: 16) {
-                    Text("Get Involved")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                    Button(action: {
-                        showingContactForm = true
-                    }) {
-                        Text("Contact Us About \(program.title)")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.white.opacity(0.2))
-                            .cornerRadius(16)
-                    }
-                }
-                .padding(24)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.chieacPrimary, Color.chieacPrimary.opacity(0.8)]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                )
-                .padding(.horizontal, 20)
-                
-                Spacer(minLength: 20)
+                .background(Color.chieacLightBackground)
             }
         }
         .background(Color.chieacLightBackground)
-        .navigationTitle(program.title)
+        .ignoresSafeArea(edges: .top)
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingContactForm) {
             ContactFormView(
@@ -142,5 +60,196 @@ struct ProgramDetailView: View {
                 customTitle: "Contact Us About \(program.title)"
             )
         }
+    }
+}
+
+// MARK: - Program Overview Card
+struct ProgramOverviewCard: View {
+    let description: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "info.circle.fill")
+                    .font(.title3)
+                    .foregroundColor(.chieacPrimary)
+                
+                Text("Program Overview")
+                    .font(.chieacCardTitle)
+                    .foregroundColor(.chieacTextPrimary)
+                
+                Spacer()
+            }
+            
+            Text(description)
+                .font(.chieacBody)
+                .foregroundColor(.chieacTextSecondary)
+                .lineSpacing(4)
+        }
+        .padding(20)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
+    }
+}
+
+// MARK: - Program Impact Card
+struct ProgramImpactCard: View {
+    let impact: [String]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                Image(systemName: "chart.line.uptrend.xyaxis")
+                    .font(.title3)
+                    .foregroundColor(.chieacPrimary)
+                
+                Text("Program Impact")
+                    .font(.chieacCardTitle)
+                    .foregroundColor(.chieacTextPrimary)
+                
+                Spacer()
+            }
+            
+            LazyVStack(alignment: .leading, spacing: 16) {
+                ForEach(Array(impact.enumerated()), id: \.offset) { index, impactItem in
+                    HStack(alignment: .center, spacing: 16) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.chieacPrimary.opacity(0.15))
+                                .frame(width: 24, height: 24)
+                            
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 10))
+                                .foregroundColor(.chieacPrimary)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(impactItem)
+                                .font(.chieacBody)
+                                .foregroundColor(.chieacTextSecondary)
+                                .lineSpacing(2)
+                        }
+                        
+                        Spacer()
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
+    }
+}
+// MARK: - Program Benefits Card
+struct ProgramBenefitsCard: View {
+    let benefits: [String]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                Image(systemName: "checkmark.seal.fill")
+                    .font(.title3)
+                    .foregroundColor(.chieacSuccess)
+                
+                Text("Program Benefits")
+                    .font(.chieacCardTitle)
+                    .foregroundColor(.chieacTextPrimary)
+                
+                Spacer()
+            }
+            
+            LazyVStack(alignment: .leading, spacing: 16) {
+                ForEach(Array(benefits.enumerated()), id: \.offset) { index, benefit in
+                    HStack(alignment: .center, spacing: 16) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.chieacSuccess.opacity(0.15))
+                                .frame(width: 24, height: 24)
+                            
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.chieacSuccess)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(benefit)
+                                .font(.chieacBody)
+                                .foregroundColor(.chieacTextSecondary)
+                                .lineSpacing(2)
+                        }
+                        
+                        Spacer()
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 3)
+    }
+}
+
+// MARK: - Program CTA Card
+struct ProgramCTACard: View {
+    let programTitle: String
+    @Binding var showingContactForm: Bool
+    let program: ProgramInfo
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            VStack(spacing: 8) {
+                Image(systemName: "person.crop.circle.badge.plus")
+                    .font(.title2)
+                    .foregroundColor(.white)
+                
+                Text("Ready to Get Involved?")
+                    .font(.chieacHero)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                
+                Text("Connect with us to learn more about \(programTitle) and how you can participate.")
+                    .font(.chieacBody)
+                    .foregroundColor(.white.opacity(0.9))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(2)
+            }
+            
+            Button(action: {
+                showingContactForm = true
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "bubble.left.and.bubble.right")
+                        .font(.headline)
+                    
+                    Text("Contact Us About \(programTitle)")
+                        .font(.chieacCardTitle)
+                        .fontWeight(.semibold)
+                }
+                .foregroundColor(.chieacPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color.white)
+                .cornerRadius(12)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(24)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.chieacPrimary,
+                            Color.chieacSecondary
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
+        .shadow(color: Color.chieacPrimary.opacity(0.3), radius: 12, x: 0, y: 6)
     }
 }

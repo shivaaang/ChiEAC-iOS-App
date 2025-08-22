@@ -13,12 +13,12 @@ struct ProgramCard: View {
     var body: some View {
     VStack(alignment: .leading, spacing: 16) {
             // Header with icon
-            HStack(alignment: .top, spacing: 16) {
+            HStack(alignment: .center, spacing: 16) {
                 // Icon
                 ZStack {
                     Circle()
                         .fill(Color.chieacPrimary.opacity(0.15))
-                        .frame(width: 60, height: 60)
+                        .frame(width: 45, height: 45)
                     
                     Image(systemName: program.icon)
                         .font(.title2)

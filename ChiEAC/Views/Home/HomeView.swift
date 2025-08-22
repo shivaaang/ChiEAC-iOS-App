@@ -39,6 +39,12 @@ struct HomeView: View {
                                 isLoading: viewModel.isAnyContentLoading && !viewModel.hasDataLoaded
                             )
                             
+                            // Get Involved / Volunteer Card
+                            VolunteerCard()
+                            
+                            // Immigration Legal Help Card
+                            ImmigrationHelpCard()
+                            
                             // Articles - horizontally scrollable cards
                             ArticlesSection(articles: viewModel.articles)
                             
@@ -83,9 +89,7 @@ struct HomeView: View {
 struct HeaderSection: View {
     let organization: OrganizationInfo
     @Environment(\.openURL) private var openURL
-    @State private var showVolunteerSheet = false
     @State private var showGetHelpForm = false
-    @State private var volunteerURL: String? = nil
     
     var body: some View {
         ZStack {
@@ -161,38 +165,19 @@ struct HeaderSection: View {
                         .buttonStyle(PrimaryCTAButtonStyle())
                         
                         Button(action: {
-                            if volunteerURL != nil { showVolunteerSheet = true }
+                            showGetHelpForm = true
                         }) {
                             HStack(spacing: 8) {
-                                Text("Volunteer")
+                                Text("Get Help")
+                                Image(systemName: "bubble.left.and.bubble.right")
                             }
                             .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(OutlineCTAButtonStyle())
-                        .disabled(volunteerURL == nil)
                     }
-                    
-                    // Get Help button - full width
-                    Button(action: {
-                        showGetHelpForm = true
-                    }) {
-                        HStack(spacing: 8) {
-                            Text("Get Help")
-                            Image(systemName: "questionmark.circle")
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(TertiaryCTAButtonStyle())
                 }
                 .padding(.horizontal, 30)
                 .padding(.top, 2)
-                .sheet(isPresented: $showVolunteerSheet) {
-                    if let url = volunteerURL {
-                        ExternalLinkWebView(urlString: url, title: "Volunteer")
-                    } else {
-                        Text("Volunteer link unavailable.").padding()
-                    }
-                }
                 .sheet(isPresented: $showGetHelpForm) {
                     ContactFormView(source: .getHelp)
                 }
@@ -202,18 +187,6 @@ struct HeaderSection: View {
         }
         .frame(maxWidth: .infinity)
         .background(Color.white)
-        .onAppear {
-            if volunteerURL == nil {
-                Task {
-                    do {
-                        let links = try await FirestoreRepository.shared.loadExternalLinks()
-                        volunteerURL = links.first(where: { $0.name.lowercased() == "volunteer" })?.address
-                    } catch {
-                        print("Error loading external links: \(error)")
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -262,8 +235,6 @@ struct CoreWorkSection: View {
     let coreWork: [CoreWork]
     let isLoading: Bool
     
-    private let columns = [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)]
-    
     var body: some View {
         VStack(spacing: 16) {
             Text("Our Core Work")
@@ -273,13 +244,13 @@ struct CoreWorkSection: View {
                 .padding(.bottom, 6)
             
             if isLoading {
-                LazyVGrid(columns: columns, spacing: 14) {
-                    ForEach(0..<4, id: \.self) { _ in
+                VStack(spacing: 14) {
+                    ForEach(0..<3, id: \.self) { _ in
                         CoreWorkLoadingSkeleton()
                     }
                 }
             } else {
-                LazyVGrid(columns: columns, spacing: 14) {
+                VStack(spacing: 14) {
                     ForEach(coreWork) { work in
                         CoreWorkCard(work: work)
                     }
@@ -493,23 +464,29 @@ private struct ExploreMoreArticlesCard: View {
 // MARK: - Loading Skeletons
 struct CoreWorkLoadingSkeleton: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        HStack(alignment: .top, spacing: 16) {
             Circle()
                 .fill(Color.gray.opacity(0.3))
-                .frame(width: 46, height: 46)
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(height: 18)
-                .frame(maxWidth: 120)
-            Rectangle()
-                .fill(Color.gray.opacity(0.2))
-                .frame(height: 14)
-            Rectangle()
-                .fill(Color.gray.opacity(0.2))
-                .frame(height: 14)
-                .frame(maxWidth: .infinity)
+                .frame(width: 48, height: 48)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 18)
+                    .frame(maxWidth: 120)
+                
+                Rectangle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(height: 14)
+                
+                Rectangle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(height: 14)
+                    .frame(maxWidth: .infinity * 0.8)
+            }
         }
         .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.chieacCardGreen.opacity(0.6))
         .cornerRadius(16)
         .redacted(reason: .placeholder)

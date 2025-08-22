@@ -15,6 +15,9 @@ struct ChiEACApp: App {
     init() {
         // Configure Firebase on app launch
         FirebaseApp.configure()
+        
+        // Configure Kingfisher image cache
+        ImageCacheConfiguration.configure()
     }
     
     var body: some Scene {

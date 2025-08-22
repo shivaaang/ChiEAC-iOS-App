@@ -17,8 +17,9 @@ struct ProgramsView: View {
                     // Hero Header (refactored)
                     HeroHeader(
                         title: "Our Programs",
-                        subtitle: "Empowering Chicago students through education, advocacy, and opportunity",
-                        systemImage: "graduationcap.fill"
+                        subtitle: "Empowering students across Chicago",
+                        systemImage: "books.vertical.fill",
+                        showDecorativeCircles: true
                     )
                     
                     // Program Tiles - NOW USES VIEWMODEL WITH LOADING STATES
@@ -41,7 +42,7 @@ struct ProgramsView: View {
                             }
                         }
                         .padding(.horizontal, 20)
-                        .padding(.top, 24)
+                        .padding(.top, 16)
                     }
                     
                     Spacer(minLength: 24)
